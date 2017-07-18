@@ -1,0 +1,680 @@
+var co_ubicacion=0;
+var co_proceso=0;
+var co_agenda=0;
+var edit_agenda=0;
+// 
+// name: datosProceso
+// @param
+// @return el JSON definido para guardar un proceso
+function datosProceso(){		
+	datos = '{ "nu_expediente" : "'+Ext.getCmp("nu_expediente").getValue()+'", ';
+	datos += '"co_organizacion" : "'+Ext.getCmp("co_organizacion").getValue()+'", ';
+	datos += '"co_ubicacion" : "'+co_ubicacion+'", ';
+	datos += '"tx_descripcion" : "'+Ext.getCmp("tx_descripcion").getValue()+'", ';
+	datos += '"co_tipo_actividad" : "'+Ext.getCmp("co_tipo_actividad").getValue()+'", ';
+	datos += '"co_modalidad" : "'+Ext.getCmp("co_modalidad").getValue()+'", ';
+	datos += '"nu_aporte" : "'+Ext.getCmp("nu_aporte").getValue()+'", ';
+	datos += '"co_regimen_lab" : "'+Ext.getCmp("co_regimen_lab").getValue()+'", ';
+	datos += '"co_rango_cont" : "'+Ext.getCmp("co_rango_cont").getValue()+'", ';
+	datos += '"tx_rango_bsf_proceso" : "'+Ext.getCmp("tx_rango_bsf_proceso").getValue()+'", ';
+	datos += '"tx_upc" : "'+Ext.getCmp("tx_upc").getValue()+'", ';
+	datos += '"nu_contribucion" : "'+Ext.getCmp("nu_contribucion").getValue()+'", ';
+	datos += '"fe_inicio" : "'+Ext.getCmp("fe_inicio").getValue().format('Y-m-d')+'", ';
+	datos += '"nu_solped" : "'+Ext.getCmp("nu_solped").getValue()+'"}';
+	return datos;
+}
+//--------------------------------------------
+// 
+// name: datosProcesoAgenda
+// @param
+// @return el JSON definido para guardar un proceso en una agenda
+function datosProcesoAgenda(){
+	datos = '{"nu_acta":"'+Ext.getCmp("nu_acta").getValue()+'",';
+	datos += '"tx_recomendacion":"'+Ext.getCmp("tx_recomendacion").getValue()+'"';
+	if(IsNumeric(Ext.getCmp("co_tipo_agenda").getValue()))
+		datos += ',"co_tipo_agenda":"'+Ext.getCmp("co_tipo_agenda").getValue()+'"';
+	if(IsNumeric(Ext.getCmp("co_acta").getValue()))
+		datos += ',"co_acta":"'+Ext.getCmp("co_acta").getValue()+'"';	
+	if(IsNumeric(Ext.getCmp("co_resumen_recomendado").getValue()))
+		datos += ',"co_resumen_recomendado":"'+Ext.getCmp("co_resumen_recomendado").getValue()+'"';
+	datos += '}';
+	return datos;
+}
+//--------------------------------------------
+//GRID PROCESO
+var store_proceso = new Ext.data.JsonStore({
+	url: 'php/ProcesoInterfaz.php',
+	totalProperty: 'total',
+	root: 'Resultados',
+	idProperty: 'co_proceso',
+	baseParams:{accion:'refrescar'},
+	fields: 
+	[{name: 'co_proceso'},{name: 'nu_expediente'},{name: 'nu_solped'},
+	{name: 'tx_descripcion'},{name: 'tx_ubicacion'},{name: 'tx_organizacion'},
+	{name: 'fe_inicio'},{name: 'tx_tipo_actividad'},{name: 'tx_modalidad'},
+	{name: 'tx_rango_cont'},{name: 'co_regimen_lab'},{name: 'tx_regimen_lab'},
+	{name: 'tx_rango_bsf_proceso'},{name: 'tx_upc'},{name: 'nu_contribucion'},
+	{name: 'nu_aporte'}]
+});
+ var expander = new Ext.ux.grid.RowExpander({
+		expandOnDblClick:false,
+        tpl : new Ext.Template(
+            '<br/><p><b>N&deg; Expediente:</b> {nu_expediente}</p>',
+            '<p><b>Descripci&oacute;n:</b> {tx_descripcion}</p>',
+            '<p><b>Organizaci&oacute;n:</b> {tx_organizacion}</p><br/>'
+        )
+    });
+
+var column_proceso = new Ext.grid.ColumnModel([
+/*new Ext.grid.RowNumberer(),*/
+	expander,	
+	{
+		header: 'N&deg; Expediente',
+		dataIndex: 'nu_expediente',
+		width: 80,
+		sortable: true
+	},{
+		header: 'N&deg; Solped',
+		dataIndex: 'nu_solped',
+		width: 80,
+		sortable: true
+	},{
+		header: 'Descripci&oacute;n',
+		dataIndex: 'tx_descripcion',
+		//align: 'center',
+		width: 150
+	},{
+		header: 'Ubicaci&oacute;n',
+		dataIndex: 'tx_ubicacion',
+		width: 120,
+		sortable: true
+	},{
+		header: 'Organizaci&oacute;n',
+		dataIndex: 'tx_organizacion',
+		width: 120,
+		sortable: true
+	},{
+		xtype: 'datecolumn',
+		header: 'Fecha de Inicio',
+		dataIndex: 'fe_inicio',
+		format: 'd/m/Y',
+		width: 80,
+		sortable: true
+	}, {
+		header: 'Tipo de Actividad',
+		dataIndex: 'tx_tipo_actividad',
+		width: 120,
+		sortable: true
+	}, {
+		header: 'Modalidad',
+		dataIndex: 'tx_modalidad',
+		width: 120,
+		sortable: true
+	}, {
+		header: 'Rango',
+		dataIndex: 'tx_rango_cont',
+		width: 80,
+		sortable: true
+	}, {
+		header: 'Ultima acta presentada',
+		dataIndex: 'tx_modalidad1',
+		width: 120,
+		sortable: true
+	}, {
+		header: 'N&deg; de Agendas',
+		dataIndex: 'tx_modalidad2',
+		width: 80,
+		sortable: true
+	}
+]);
+// grid  proceso
+var grid_proceso = new Ext.grid.GridPanel({
+	store: store_proceso,
+	width: 500,
+	height: 300,
+	plugins:[expander],
+	region: 'center',
+	margins: '0 5 5 5',
+	cm: column_proceso,
+	tbar: [{
+		iconCls: 'proceso-add',
+		text: 'Nuevo Expediente',
+		handler: function () {
+			formPanel_proceso.getForm().reset();
+			WinProceso.setTitle("Proceso Nuevo");
+			store_proceso.setBaseParam('accion','insertar');
+			WinProceso.show();
+		}
+	}, {
+		iconCls: 'proceso-delete',
+		text: 'Eliminar Expediente',
+		//disabled: true,
+		handler: function () {
+			store_proceso.reload({params:{accion: 'eliminar',co_proceso:co_proceso}});
+		}
+	},{
+		iconCls: 'buscar',
+		text: 'Busqueda Avanzada',
+		handler: function () {
+			//WinProceso.show();
+		}
+	}],
+	listeners: {
+		'rowdblclick': function (grid, rowIndex, e) {
+			fila=grid.getSelectionModel();
+			rec=fila.getSelected();
+			formPanel_proceso.getForm().reset();
+			formPanel_proceso.getForm().loadRecord(rec);
+			WinProceso.setTitle("Proceso N&deg; "+rec.data.nu_expediente);
+			co_proceso=rec.data.co_proceso;
+			store_proceso.setBaseParam('accion','modificar');
+			store_agendaWP.reload({params:{condicion:co_proceso}});
+			store_cronograma.load({params:{condicion:co_proceso,fe_inicio:Ext.getCmp('fe_inicio').getValue().format('Y-m-d')}});
+			WinProceso.show();
+		},
+		'rowclick': function (grid, rowIndex, e) {
+			fila=grid.getSelectionModel();
+			rec=fila.getSelected();
+			co_proceso=rec.data.co_proceso;
+		}
+	}
+});
+//--------------------------------------------
+//GRID AGENDA
+var store_agendaWP = new Ext.data.JsonStore({
+	url: 'php/Proceso_Agenda_Interfaz.php',
+	totalProperty: 'total',
+	root: 'Resultados',
+	idProperty: 'co_agenda',
+	/*sortInfo: {
+		field: 'fe_agenda',
+		direction: 'DESC'
+	},*/
+	baseParams:{accion:'refrescarPorProceso'},
+	fields: [
+		{name: 'co_agenda',type: 'int'},
+		{name: 'nu_agenda',type: 'string'},
+		{name: 'nu_orden',type: 'int'},
+		{name: 'fe_agenda',type: 'date',dateFormat: 'Y-m-d'},
+		{name: 'nu_acta',type: 'int'},
+		{name: 'co_trimestre',type: 'int'},
+		{name: 'tx_trimestre',type: 'string'},
+		{name: 'co_tipo_reunion',type: 'int'},
+		{name: 'tx_tipo_reunion',type: 'string'},
+		{name: 'co_tipo_agenda',type: 'int'},
+		{name: 'tx_tipo_agenda',type: 'string'},
+		{name: 'co_acta',type: 'int'},
+		{name: 'tx_acta',type: 'string'},
+		{name: 'tx_recomendacion',type: 'string'},
+		{name: 'co_resumen_recomendado',type: 'int'},
+		{name: 'tx_resumen_recomendado',type: 'string'}
+	],
+	listeners:{
+		beforeload:{
+			fn: function(store){
+				loadMask.show();
+			}
+		},
+		load:{
+			fn: function(store){
+				loadMask.hide();
+			}
+		}
+	}
+});
+var grid_agendaWP = new Ext.grid.GridPanel({
+	id:'grid_agendaWP', 
+	name:'grid_agendaWP',
+	height:150,
+	frame:true,
+	store:store_agendaWP,
+	columns:[{
+		header: 'N&deg; Agenda',
+		dataIndex: 'nu_agenda',
+		width: 70
+	},{
+		xtype: 'datecolumn',
+		header: 'Fecha de Agenda',
+		dataIndex: 'fe_agenda',
+		format: 'd/m/Y',
+		width: 110
+	}/*,{
+		header: 'N&deg; de Orden',
+		dataIndex: 'nu_orden',
+		width: 80
+	}*/,{
+		header: 'Acta Presentada',
+		dataIndex: 'tx_acta',
+		width: 120
+	},{
+		header: 'Resumen Recomendado',
+		dataIndex: 'tx_resumen_recomendado',
+		width: 120
+	}]/*,
+	tbar: [{
+		iconCls: 'icon-add',
+		text: 'Agregar'
+	},{
+		iconCls: 'icon-delete',
+		text: 'Eliminar'}
+	]*/,
+	listeners: {
+		'rowclick': function (grid, rowIndex, e) {
+			if(Ext.getCmp('guardarAgendaButton').disabled!=true){
+				Ext.Msg.show({
+					title: '&iexcl;Atenci&oacute;n!',
+					msg: 'Se perder&aacute;n todos los cambios no guardados &iquest;Desea continuar?',
+					buttons: Ext.Msg.YESNO,
+					animEl: 'elId',
+					icon: Ext.MessageBox.WARNING,
+					fn: function(btn, text){
+						if (btn == 'yes') {
+							fila=grid.getSelectionModel();
+							rec=fila.getSelected();
+							co_agenda=rec.data.co_agenda;
+							panel_tab_agenda.getForm().loadRecord(rec);
+							Ext.getCmp('guardarAgendaButton').disable();
+						}
+						else{}
+					}
+				});
+			}
+			else{
+				fila=grid.getSelectionModel();
+				rec=fila.getSelected();
+				co_agenda=rec.data.co_agenda;
+				panel_tab_agenda.getForm().loadRecord(rec);
+				Ext.getCmp('guardarAgendaButton').disable();
+			}
+		}
+	}
+});
+//--------------------------------------------
+//GRID CRONOGRAMA
+var store_cronograma = new Ext.data.JsonStore({
+	url: 'php/CronogramaInterfaz.php',
+	totalProperty: 'total',
+	root: 'Resultados',
+	idProperty: 'co_modalidad_actividad',
+	baseParams:{accion:'refrescar'},
+	fields: [
+		{name: 'co_proceso',type: 'int'},
+		{name: 'co_modalidad_actividad',type: 'int'},
+		{name: 'tx_actividad',type: 'text'},
+		{name: 'fe_programada',type: 'date',dateFormat: 'Y-m-d'},
+		{name: 'fe_real',type: 'date',dateFormat: 'Y-m-d'}
+	]
+});
+var grid_cronograma = new Ext.grid.EditorGridPanel({
+	id:'grid_cronograma', 
+	name:'grid_cronograma',
+	width: 455,
+	height: 520,
+	stripeRows:true,
+	frame:true,
+	store:store_cronograma,
+	columns:[{
+		header: 'Nombre de la Actividad',
+		dataIndex: 'tx_actividad',
+		width: 200
+	},{
+		header: 'Fecha Programada',
+		dataIndex: 'fe_programada',
+		xtype: 'datecolumn',
+		format: 'd/m/Y',
+		width: 110
+	},{
+		header: 'Fecha Real',
+		dataIndex: 'fe_real',
+		width: 110,
+		xtype: 'datecolumn',
+		format: 'd/m/Y',
+		editor: new Ext.form.DateField({})
+	}]
+});
+//--------------------------------------------
+//PANEL CRONOGRAMA
+var panel_tab_cronograma = new Ext.FormPanel({
+	id:'panel_tab_cronograma',
+	name:'panel_tab_cronograma',
+	layout: 'form',
+	labelAlign: 'top',
+	height: 600,
+	items:[grid_cronograma],
+	buttons: [{
+		text: 'Guardar',
+		//disabled:true,
+		listeners: {
+			'click': function () {
+				store=store_cronograma.getRange();
+				var datos='';
+				datos+='{data:[';
+				Ext.each(store,function(record, i) {
+					if(i){
+						datos+=',';
+					}
+					fe_real=store[i].get('fe_real');
+					if(fe_real!=null){
+						fe_real='"'+store[i].get('fe_real').format('Y-m-d')+'"';
+					}					
+					datos+='{co_proceso:'+store[i].get('co_proceso')+',co_modalidad_actividad:'+store[i].get('co_modalidad_actividad')+',fe_programada:"'+store[i].get('fe_programada').format('Y-m-d')+'",fe_real:"'+fe_real+'"}';
+				});
+				datos+=']}';
+				Ext.Ajax.request({
+					url: 'php/CronogramaInterfaz.php',
+					params: {
+						accion:'guardar',
+						datos:datos,
+						condicion:co_proceso 
+					}
+				});
+				WinProceso.hide();
+			}
+		}
+	},{
+		text: 'Cerrar',
+		listeners: {
+			'click': function () {
+				WinProceso.hide();
+			}
+		}
+	}]
+});
+//--------------------------------------------
+//PANEL TAB PROCESO
+var panel_tab_proceso = new Ext.FormPanel({
+	id:'panel_tab_proceso',
+	name:'panel_tab_proceso',
+	layout: 'form',
+	labelAlign: 'top',
+	height: 600,
+	items:[{
+				layout: 'column',
+				items: [{
+					columnWidth: .5,
+					layout: 'form',
+					items: [{
+						xtype: 'textfield',
+						id:'nu_expediente',
+						fieldLabel: 'N&uacute;mero de Expediente',
+						name: 'nu_expediente',
+						anchor: '80%'
+					}]
+				}, {
+					columnWidth: .5,
+					layout: 'form',
+					items: [{
+						xtype: 'textfield',
+						id:'nu_solped',
+						fieldLabel: 'N&uacute;mero de Solped',
+						anchor: '80%'
+					}]
+				}, {
+					columnWidth: 1,
+					layout: 'form',
+					items: [{
+						xtype: 'textarea',
+						id:'tx_descripcion',
+						fieldLabel: 'Descripci&oacute;n del Proceso',
+						anchor: '90%'
+					}]
+				}, {
+					columnWidth: .5,
+					layout: 'form',
+					items: [GetCombo('co_organizacion','Organizaci&oacute;n Contratante')]
+				}, {
+					columnWidth: .5,
+					layout: 'form',
+					items: [GetCombo('co_tipo_actividad','Tipo de Actividad')]
+				}, {
+					columnWidth: .5,
+					layout: 'form',
+					items: [GetCombo('co_modalidad','Modalidad')]
+				}, {
+					columnWidth: .5,
+					layout: 'form',
+					items: [GetCombo('co_regimen_lab','Regimen Laboral')]
+				}, {
+					columnWidth: .5,
+					layout: 'form',
+					items: [GetComboParametros('co_rango_cont','tx_rango_cont','rango_bsf','Rango de Contrataci&oacute;n')]
+				}, {
+					columnWidth: .5,
+					layout: 'form',
+					items: [{
+						xtype: 'textfield',
+						id:'tx_rango_bsf_proceso',
+						name:'tx_rango_bsf_proceso',
+						fieldLabel: 'Rango (Bs)',
+						disabled:true,
+						anchor: '80%'
+					}]
+				}, {
+					columnWidth: .5,
+					layout: 'form',
+					items: [{
+						xtype: 'textfield',
+						id:'tx_upc',
+						name:'tx_upc',
+						fieldLabel: 'Desarrollo de UPC (%)',
+						anchor: '80%'
+					}]
+				}, {
+					columnWidth: .5,
+					layout: 'form',
+					items: [{
+						xtype: 'textfield',
+						id:'nu_contribucion',
+						name:'nu_contribucion',
+						fieldLabel: 'Contribuci&oacute;n (%)',
+						anchor: '80%'
+					}]
+				}, {
+					columnWidth: .5,
+					layout: 'form',
+					items: [{
+						xtype: 'datefield',
+						id:'fe_inicio',
+						fieldLabel: 'Fecha de Inicio',
+						anchor: '80%'
+					}]
+				}, {
+					columnWidth: .5,
+					layout: 'form',
+					items: [{
+						xtype: 'textfield',
+						id:'nu_aporte',
+						fieldLabel: 'Aporte al Fondo',
+						anchor: '80%'
+					}]
+				}]
+			}, {
+				// tabla Ubicación
+				xtype: 'fieldset',
+				bodyStyle: 'padding:5px 5px 0',
+				title: 'Ubicaci&oacute;n',
+				layout: 'column',
+				collapsible: false,
+				hidden:true,
+				autoHeight: false,
+				labelAlign: 'top',
+				items: [{
+
+					columnWidth: .5,
+					layout: 'form',
+					items: [GetComboUbicacion('combo_direjec','Direcci&oacute;n Ejecutiva',1,'combo_division'), 
+					{
+						columnWidth: .5,
+						layout: 'form',
+						items: [GetComboUbicacion('combo_distrito','Distrito',3)]
+					}]
+
+				},{
+
+					columnWidth: .5,
+					layout: 'form',
+					items: [GetComboUbicacion('combo_division','Divisi&oacute;n',2,'combo_distrito')]
+
+
+				}]
+
+			}],
+	buttons: [{
+		text: 'Guardar',
+		listeners: {
+			'click': function () {
+				store_proceso.reload({params:{columnas: datosProceso(),co_proceso:co_proceso}});
+				WinProceso.hide();
+			}
+		}
+	}, {
+		text: 'Cerrar',
+		listeners: {
+			'click': function () {
+				WinProceso.hide();
+			}
+		}
+	}]	
+});
+//--------------------------------------------
+//PANEL TAB AGENDA
+var panel_tab_agenda = new Ext.FormPanel({
+	id:'panel_tab_agenda',
+	name:'panel_tab_agenda',
+	labelAlign: 'top',
+	height: 600,
+	items:[{
+		layout: 'column',
+		items:[{
+			columnWidth:.5,
+			layout: 'form',
+			items:[{
+				xtype: 'textfield',
+				id:'nu_agenda',
+				name:'nu_expediente',
+				fieldLabel: 'N&uacute;mero de Agenda',
+				disabled: true,
+				anchor: '80%'
+			},{
+				xtype: 'textfield',
+				id:'nu_orden',
+				name:'nu_orden',
+				fieldLabel: 'N&uacute;mero de Orden',
+				disabled: true,
+				anchor: '80%'
+			},
+				GetCombo('co_trimestre','Trimestre',true),
+				GetCombo('co_tipo_agenda','Agenda / Extra-Agenda')
+			]
+		},{
+			columnWidth:.5,
+			layout: 'form',
+			items:[{
+				xtype: 'datefield',
+				id:'fe_agenda',
+				name:'fe_agenda',
+				fieldLabel: 'Fecha de Reuni&oacute;n',
+				disabled: true,
+				anchor: '80%'
+			},GetCombo('co_tipo_reunion','Tipo de Reuni&oacute;n',true),
+			{
+				xtype: 'textfield',
+				id:'nu_acta',
+				name:'nu_acta',
+				fieldLabel: 'N&uacute;mero de Acta',
+				anchor: '80%'
+			},
+				GetCombo('co_acta','Acta Presentada a la Comisi&oacute;n')
+			]
+		},{
+			columnWidth: 1,
+			layout: 'form',
+			items: [{
+				xtype: 'textarea',
+				id:'tx_recomendacion',
+				fieldLabel: 'Recomendaci&oacute;n de la Comisi&oacute;n',
+				anchor: '90%'
+			}]
+		},{
+			columnWidth:.5,
+			layout: 'form',
+			items:[GetCombo('co_resumen_recomendado','Resumen Recomendado')]
+		},{
+			columnWidth:.5,
+			layout: 'form',
+			items:[/*GetCombo('co_tipo_reunion2','	Solicitud de la Gerencia')*/]
+		},{
+			columnWidth:1,
+			items:[grid_agendaWP]
+		}]
+	}],
+	buttons: [{
+		text: 'Guardar',
+		id:'guardarAgendaButton',
+		disabled:true,
+		listeners: {
+			'click': function () {
+				//Guardar cambios en agenda
+				store_agendaWP.reload({
+					params:{
+						accion: 'modificarProcesoAgenda',
+						co_proceso:co_proceso,
+						co_agenda:co_agenda,
+						Resultados:datosProcesoAgenda()
+					}
+				});
+				Ext.getCmp('guardarAgendaButton').disable();
+			}
+		}
+	}, {
+		text: 'Cerrar',
+		listeners: {
+			'click': function () {
+				WinProceso.hide();
+			}
+		}
+	}]	
+});
+//--------------------------------------------
+Ext.getCmp('co_acta').on('select',
+	function(){
+		Ext.getCmp('guardarAgendaButton').enable();
+	}
+);
+Ext.getCmp('nu_acta').on('change',
+	function(){
+		Ext.getCmp('guardarAgendaButton').enable();
+	}
+);
+Ext.getCmp('co_tipo_agenda').on('select',
+	function(){
+		Ext.getCmp('guardarAgendaButton').enable();
+	}
+);
+Ext.getCmp('tx_recomendacion').on('change',
+	function(){
+		Ext.getCmp('guardarAgendaButton').enable();
+	}
+);
+Ext.getCmp('co_resumen_recomendado').on('select',
+	function(){
+		Ext.getCmp('guardarAgendaButton').enable();
+	}
+);
+
+//--------------------------------------------
+var WinProceso = new Ext.Window({
+	id:'WinProceso',
+	name:'WinProceso',
+	title: 'Proceso',
+	//layout:'column',
+	width: 515,
+	modal: true,
+	resizable:false,
+	height: 690,
+	closeAction: 'hide',
+	plain: true,
+	//items: [formPanel_proceso]
+});
+//store_proceso.load();
+Ext.getCmp('combo_direjec').store.load();

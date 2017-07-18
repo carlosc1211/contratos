@@ -1,0 +1,350 @@
+<?php
+
+	require ('../Spreadsheet/Excel/Writer.php');
+	include('../config/conf.php');
+	require_once 'MyPDO.php';
+	session_start();
+//***************************************************************************
+	function convertArrayKeysToUtf88($array){
+		$convertedArray1 = array();
+		$convertedArray = array();
+		
+		foreach($array as $key => $value) {
+		  if(mb_check_encoding($value, 'UTF-8')) 
+		  {		
+			  $value = utf8_decode($value); }
+
+		  $convertedArray[$key] = $value;
+
+		}
+		//$convertedArray1[] = $convertedArray;
+		//}
+		return $convertedArray;
+	}
+//*******************************************************************************************
+	$libro = new Spreadsheet_Excel_Writer();	
+	if (PEAR::isError($hoja)){
+		
+		die($hoja->getMessage());
+	}
+	$libro->setVersion(8);
+	$hoja =& $libro->addWorksheet('Proyectos Planificados');
+	
+//*********************************ESTABLECEMOS LOS FORMATOS DE LAS CELDAS*********************
+	$C_tope=$libro->addFormat(array('fgcolor' => 'red',
+									'bold' => 1,
+									'color' => 'white',
+									'border' => 1,
+									'bordercolor' => 'grey',
+									'text-transform'=> 'uppercase'));
+									
+	$E_centrado1 =$libro->addFormat(array('vAlign' => 'vcenter','text-transform'=> 'uppercase'));
+	
+	$E_centrado2 =$libro->addFormat(array('halign' => 'center','vAlign' => 'vcenter'));
+//****************************************Letra Negra Grande***********************************
+
+	$N_grande =$libro->addFormat(array('Size' => 30,
+                                       'bold' => 4,
+                                       'text-transform' => 'uppercase',
+                                       'fgcolor' => 'white',
+									   'halign' => 'center'));
+	
+
+//**********************************ESTABLECEMOS LA COLUMNA DE CADA CAMPO*********************************************
+	$columna=array();
+	$columna['co_proyecto']=0;
+	$columna['nu_anio']=1;
+	$columna['tx_usuario']=2;
+	$columna['tx_proyecto']=3;
+	$columna['tx_ubicacion']=4;
+	$columna['tx_organizacion']=5;
+	$columna['tx_ubicacion_etc']=6;
+	$columna['tx_lugar_ejecucion']=7;
+	$columna['nu_orden_interna']=8;
+	$columna['nu_renglon']=9;
+	$columna['tx_prioridad']=10;
+	$columna['nu_plazo_ejec']=11;
+	$columna['tx_tipo_presupuesto']=12;
+	$columna['tx_tipo_act']=13;
+	$columna['fe_especificaciones']=14;
+	$columna['fe_inicio_estimada_p']=15;
+	$columna['fe_inicio_estimada_a']=16;
+	$columna['tx_naturaleza']=17;
+	$columna['tx_estrategia_adj']=18;
+	$columna['nu_contratos_asociados']=19;
+	$columna['tx_tipo_contrato']=20;
+	$columna['tx_regimen_lab']=21;
+	$columna['tx_modalidad']=22;
+	$columna['tx_mecanismo_verif']=23;
+	$columna['tx_rango']=24;
+	$columna['monto_max']=25;
+	$columna['tx_obser']=26;
+	
+//**********************************ESTABLECEMOS LOS NOMBRE DE COLUMNAS*******************************
+	$header=array();
+	$header[$columna['co_proyecto']]='N° Proyecto';
+	$header[$columna['nu_anio']]='Año';
+	$header[$columna['tx_usuario']]='Supervisor';
+	$header[$columna['tx_proyecto']]=' Descripción del Proyecto';
+	$header[$columna['tx_ubicacion']]='Ubicación';
+	$header[$columna['tx_organizacion']]='Organización';
+	$header[$columna['tx_ubicacion_etc']]='Edificio/Torre/Campo';
+	$header[$columna['tx_lugar_ejecucion']]='Lugar de Ejecución';
+	$header[$columna['nu_orden_interna']]='Orden Interna';
+	$header[$columna['nu_renglon']]='Renglon Presupuestario';
+	$header[$columna['tx_prioridad']]='Prioridad';
+	$header[$columna['nu_plazo_ejec']]='Plazo de Ejecución ';
+	$header[$columna['tx_tipo_presupuesto']]='Presupuesto';
+	$header[$columna['tx_tipo_act']]='Frecuencia';
+	$header[$columna['fe_especificaciones']]='Fecha de Solicitud de Inicio';
+	$header[$columna['fe_inicio_estimada_p']]='Fecha estimada de inicio de Procedimiento';
+	$header[$columna['fe_inicio_estimada_a']]='Fecha estimada de inicio de la Obra';
+	$header[$columna['tx_naturaleza']]='Naturaleza de la Contratación';
+	$header[$columna['tx_estrategia_adj']]='Estrategia de Contratación';
+	$header[$columna['nu_contratos_asociados']]='N° Contratos';
+	$header[$columna['tx_tipo_contrato']]='Tipo de Contrato';
+	$header[$columna['tx_regimen_lab']]='Regimen Laboral';
+	$header[$columna['tx_modalidad']]='Modalidad de Contratación';
+	$header[$columna['tx_mecanismo_verif']]='Mecanismo de Verificación';
+	$header[$columna['tx_rango']]='Categoria de Contratación';
+	$header[$columna['monto_max']]='Monto';
+	$header[$columna['tx_obser']]='Observación';
+	
+
+//******************************CONSTRUIMOS LA HOJA*********************************************
+	$hoja->insertBitmap (0,0,'../images/pdvsa_eyp.bmp',0,2,1.5,1.5);
+	$hoja->write(0,0,utf8_decode("GERENCIA DE CONTRATACIÓN ''PROCESOS PLANIFICADOS''"),$N_grande);
+	$hoja->mergeCells(0,0,3,12);
+	foreach($header as $key => $value){
+		$hoja->write(6,$key,utf8_decode($value),$C_tope);
+		}
+//*************************COLOCAMOS EL ANCHO DE LAS COLUMNAS***********************************
+	//$hoja->setColumn($columna[''],$columna[''],20);
+	$hoja->setColumn($columna['co_proyecto'],$columna['co_proyecto'],10);
+	$hoja->setColumn($columna['nu_anio'],$columna['nu_anio'],6);
+	$hoja->setColumn($columna['tx_usuario'],$columna['tx_supervisor'],30);
+	$hoja->setColumn($columna['tx_proyecto'],$columna['tx_proyecto'],50);
+	$hoja->setColumn($columna['tx_ubicacion'],$columna['tx_ubicacion'],25);
+	$hoja->setColumn($columna['tx_organizacion'],$columna['tx_organizacion'],30);
+	$hoja->setColumn($columna['tx_ubicacion_etc'],$columna['tx_ubicacion_etc'],20);
+	$hoja->setColumn($columna['tx_lugar_ejecucion'],$columna['tx_lugar_ejecucion'],25);
+	$hoja->setColumn($columna['nu_orden_interna'],$columna['nu_orden_interna'],13);
+	$hoja->setColumn($columna['nu_renglon'],$columna['nu_renglon'],21);
+	$hoja->setColumn($columna['tx_prioridad'],$columna['tx_prioridad'],9);
+	$hoja->setColumn($columna['nu_plazo_ejec'],$columna['nu_plazo_ejec'],18);
+	$hoja->setColumn($columna['tx_tipo_presupuesto'],$columna['tx_tipo_presupuesto'],15);
+	$hoja->setColumn($columna['tx_tipo_act'],$columna['tx_tipo_act'],25);
+	$hoja->setColumn($columna['fe_especificaciones'],$columna['fe_especificaciones'],22);
+	$hoja->setColumn($columna['fe_inicio_estimada_p'],$columna['fe_inicio_estimada_p'],33);
+	$hoja->setColumn($columna['fe_inicio_estimada_a'],$columna['fe_inicio_estimada_a'],30);
+	$hoja->setColumn($columna['tx_naturaleza'],$columna['tx_naturaleza'],26);
+	$hoja->setColumn($columna['tx_estrategia_adj'],$columna['tx_estrategia_adj'],22);
+	$hoja->setColumn($columna['nu_contratos_asociados'],$columna['nu_contratos_asociados'],10);
+	$hoja->setColumn($columna['tx_tipo_contrato'],$columna['tx_tipo_contrato'],65);
+	$hoja->setColumn($columna['tx_regimen_lab'],$columna['tx_regimen_lab'],14);
+	$hoja->setColumn($columna['tx_modalidad'],$columna['tx_modalidad'],35);
+	$hoja->setColumn($columna['tx_mecanismo_verif'],$columna['tx_mecanismo_verif'],25);
+	$hoja->setColumn($columna['tx_rango'],$columna['tx_rango'],20);
+	$hoja->setColumn($columna['monto_max'],$columna['monto_max'],14);
+	$hoja->setColumn($columna['tx_obser'],$columna['tx_obser'],100);
+	switch($_SESSION['co_rol']){
+			case 0://Administrador del Sistema
+				$cadena="";
+			break;
+			case 1://Gerente de Area
+				$cadena=" AND c003t_proyecto.co_ubicacion_usuario=".$_SESSION['co_ubicacion']." 
+				AND c003t_proyecto.co_organizacion_usuario=".$_SESSION['co_organizacion'];
+			break;
+			case 2://Lider de Planificacion
+				$cadena=" AND c003t_proyecto.co_ubicacion_usuario=".$_SESSION['co_ubicacion']." 
+				AND c003t_proyecto.co_organizacion_usuario=".$_SESSION['co_organizacion'];
+			break;
+			case 3://Supervisor de Planificacion
+				$cadena=" AND c003t_proyecto.co_ubicacion_usuario=".$_SESSION['co_ubicacion']." 
+				AND c003t_proyecto.co_organizacion_usuario=".$_SESSION['co_organizacion'];
+			break;
+			case 10://Analista de Planificacion
+				$cadena=" AND c003t_proyecto.co_ubicacion_usuario=".$_SESSION['co_ubicacion']." 
+				AND c003t_proyecto.co_organizacion_usuario=".$_SESSION['co_organizacion'];
+			break;
+			case 4://Lider de Contratacion
+				$cadena=" AND c003t_proyecto.co_ubicacion_usuario=".$_SESSION['co_ubicacion']." 
+				AND c003t_proyecto.co_organizacion_usuario=".$_SESSION['co_organizacion'];
+			break;
+			case 5://Supervisor de Contratacion
+				$cadena=" AND c003t_proyecto.co_ubicacion_usuario=".$_SESSION['co_ubicacion']." 
+				AND c003t_proyecto.co_organizacion_usuario=".$_SESSION['co_organizacion'];
+			break;
+			case 6://Analista de Contratacion
+				$cadena=" AND c003t_proyecto.co_ubicacion_usuario=".$_SESSION['co_ubicacion']." 
+				AND c003t_proyecto.co_organizacion_usuario=".$_SESSION['co_organizacion'];
+			break;
+			case 7://Lider de Administracion
+				$cadena=" AND c003t_proyecto.co_ubicacion_usuario=".$_SESSION['co_ubicacion']." 
+				AND c003t_proyecto.co_organizacion_usuario=".$_SESSION['co_organizacion'];
+			break;
+			case 8://Supervisor de Administracion
+				$cadena=" AND c003t_proyecto.co_ubicacion_usuario=".$_SESSION['co_ubicacion']." 
+				AND c003t_proyecto.co_organizacion_usuario=".$_SESSION['co_organizacion'];
+			break;
+			case 9://Analista de Administracion
+				$cadena=" AND c003t_proyecto.co_ubicacion_usuario=".$_SESSION['co_ubicacion']." 
+				AND c003t_proyecto.co_organizacion_usuario=".$_SESSION['co_organizacion'];
+			break;
+			case 11://Gerente de Region
+				$cadena=" AND c003t_proyecto.co_ubicacion_usuario=".$_SESSION['co_ubicacion']." 
+				AND c003t_proyecto.co_organizacion_usuario=".$_SESSION['co_organizacion'];
+			break;
+		}
+	
+		
+//**************************************CONECTAMOS A LA BD***************************************************
+	$conexion = mysql_connect($BD_HOST, $BD_USER, $BD_PASSWORD);
+	mysql_select_db($BD_NAME, $conexion);
+	//mysql_query ("SET NAMES 'utf8'");
+	$result=mysql_query("
+	SELECT 
+		(@rownum:=@rownum+1) AS rownum,c001t_usuario.*, u.*, tu.*, 	tc.*, ea.*, o.*, na.*, mo.*,rl.*,mv.*,ra.*,tp.*,tac.*,pri.*,
+        CONCAT(tx_rango,' (',ut_minimo,' - ' ,ut_maximo,' UT)') AS tx_rango	FROM  (SELECT @rownum:=0) r, c003t_proyecto
+	
+		LEFT JOIN c001t_usuario                 ON c003t_proyecto.co_usuario= c001t_usuario.co_usuario
+		LEFT JOIN i002t_ubicacion        AS u   ON c003t_proyecto.co_ubicacion= u.co_ubicacion
+		LEFT JOIN i003t_tipo_ubicacion   AS tu  ON u.co_tipo_ubicacion = tu.co_tipo_ubicacion
+		LEFT JOIN i034t_tipo_contrato    AS tc  ON c003t_proyecto.co_tipo_contrato = tc.co_tipo_contrato
+		LEFT JOIN i035t_estrategia_adj   AS ea  ON c003t_proyecto.co_estrategia_adj = ea.co_estrategia_adj
+		LEFT JOIN i005t_organizacion     AS o   ON c003t_proyecto.co_organizacion = o.co_organizacion
+		LEFT JOIN i008t_naturaleza       AS na  ON c003t_proyecto.co_naturaleza = na.co_naturaleza
+		LEFT JOIN i006t_modalidad        AS mo  ON c003t_proyecto.co_modalidad = mo.co_modalidad
+		LEFT JOIN i007t_regimen_lab      AS rl  ON c003t_proyecto.co_regimen_lab = rl.co_regimen_lab
+		LEFT JOIN i016t_mecanismo_verif  AS mv  ON c003t_proyecto.co_mecanismo_verif = mv.co_mecanismo_verif
+		LEFT JOIN i017t_rango            AS ra  ON c003t_proyecto.co_rango = ra.co_rango
+		LEFT JOIN i018t_tipo_presupuesto AS tp  ON c003t_proyecto.co_tipo_presupuesto = tp.co_tipo_presupuesto
+		LEFT JOIN i019t_tipo_act         AS tac ON c003t_proyecto.co_tipo_act = tac.co_tipo_act
+		LEFT JOIN i020t_prioridad        AS pri ON c003t_proyecto.co_prioridad= pri.co_prioridad
+		WHERE 0=0 $cadena
+		ORDER BY c003t_proyecto.co_proyecto");
+	
+	//$r = $this->pdo->_query($result);
+	//$resultado=$this->convertArrayKeysToUtf88($r);
+	
+	
+	//$r = pdo->_query($result);
+
+	//return $resultado;
+	//print_r($result);
+	$fila=9;$fila_ini=9;
+	$temp_co_control='1';$i=0;
+	//utf8_encode($result);
+	//COLOCAMOS EL ESTILO RESPECTIVO DEPENDIENDO DEL ESTADO DEL DOC
+	
+	while($row = mysql_fetch_array($result)){
+		/*
+echo "<pre>";
+print_r($row);
+echo "</pre>";
+*/
+
+		$resultado=convertArrayKeysToUtf88($row);
+	//echo "<pre>";	
+		//print_r($resultado);
+//echo "</pre>";		
+		//CARGAMOS LOS DATOS
+		//$hoja->write($fila,$columna['tx_acta'],html_entity_decode($row['tx_acta']),$E_centrado1);
+		//$hoja->write($fila,$columna['tx_recomendacion'],html_entity_decode($row['tx_recomendacion']),$E_centrado1);
+		//$hoja->write($fila,$columna['fe_agenda'],html_entity_decode($row['fe_agenda']),$E_centrado1);
+		
+		//CARGAMOS LAS FILAS
+		$hoja->write($fila,$columna['rownum'],html_entity_decode($resultado['rownum'].""),$E_centrado1);
+		$hoja->write($fila,$columna['nu_anio'],html_entity_decode($resultado['nu_anio']." "),$E_centrado2);
+		$hoja->write($fila,$columna['tx_usuario'],html_entity_decode($resultado['tx_usuario']),$E_centrado1);
+		$hoja->write($fila,$columna['tx_proyecto'],html_entity_decode($resultado['tx_proyecto']),$E_centrado1);
+		$hoja->write($fila,$columna['tx_ubicacion'],html_entity_decode($resultado['tx_ubicacion']),$E_centrado1);
+		$hoja->write($fila,$columna['tx_organizacion'],html_entity_decode($resultado['tx_organizacion']),$E_centrado1);	
+		$hoja->write($fila,$columna['tx_ubicacion_etc'],html_entity_decode($resultado['tx_ubicacion_etc']),$E_centrado1);	
+		$hoja->write($fila,$columna['tx_lugar_ejecucion'],html_entity_decode($resultado['tx_lugar_ejecucion']),$E_centrado1);
+		$hoja->write($fila,$columna['nu_orden_interna'],html_entity_decode($resultado['nu_orden_interna']),$E_centrado2);
+		$hoja->write($fila,$columna['nu_renglon'],html_entity_decode($resultado['nu_renglon']),$E_centrado2);
+		$hoja->write($fila,$columna['tx_prioridad'],html_entity_decode($resultado['tx_prioridad']),$E_centrado2);
+		$hoja->write($fila,$columna['nu_plazo_ejec'],html_entity_decode($resultado['nu_plazo_ejec']." Dias"),$E_centrado2);
+		$hoja->write($fila,$columna['tx_tipo_presupuesto'],html_entity_decode($resultado['tx_tipo_presupuesto']),$E_centrado1);
+		$hoja->write($fila,$columna['tx_tipo_act'],html_entity_decode($resultado['tx_tipo_act']),$E_centrado1);
+		$hoja->write($fila,$columna['fe_especificaciones'],html_entity_decode($resultado['fe_especificaciones']),$E_centrado2);
+		$hoja->write($fila,$columna['fe_inicio_estimada_p'],html_entity_decode($resultado['fe_inicio_estimada_p']),$E_centrado2);
+		$hoja->write($fila,$columna['fe_inicio_estimada_a'],html_entity_decode($resultado['fe_inicio_estimada_a']),$E_centrado2);
+		$hoja->write($fila,$columna['tx_naturaleza'],html_entity_decode($resultado['tx_naturaleza']),$E_centrado1);
+		$hoja->write($fila,$columna['tx_estrategia_adj'],html_entity_decode($resultado['tx_estrategia_adj']),$E_centrado1);
+		$hoja->write($fila,$columna['nu_contratos_asociados'],html_entity_decode($resultado['nu_contratos_asociados']),$E_centrado2);
+		$hoja->write($fila,$columna['tx_tipo_contrato'],html_entity_decode($resultado['tx_tipo_contrato']),$E_centrado1);
+		$hoja->write($fila,$columna['tx_regimen_lab'],html_entity_decode($resultado['tx_regimen_lab']),$E_centrado2);
+		$hoja->write($fila,$columna['tx_modalidad'],html_entity_decode($resultado['tx_modalidad']),$E_centrado1);
+		$hoja->write($fila,$columna['tx_mecanismo_verif'],html_entity_decode($resultado['tx_mecanismo_verif']),$E_centrado1);
+		$hoja->write($fila,$columna['tx_rango'],html_entity_decode($resultado['tx_rango']),$E_centrado2);
+		$hoja->write($fila,$columna['monto_max'],html_entity_decode($resultado['monto_max']),$E_centrado2);
+		$hoja->write($fila,$columna['tx_obser'],html_entity_decode($resultado['tx_obser']),$E_centrado1);
+		
+		
+		/*if($temp_co_control!=$row['co_proyecto']){
+			$hoja->mergeCells($fila_ini,$columna['rownum'],$fila-1,$columna['rownum']);
+			$hoja->mergeCells($fila_ini,$columna['nu_anio'],$fila-1,$columna['nu_anio']);
+			$hoja->mergeCells($fila_ini,$columna['tx_usuario'],$fila-1,$columna['tx_usuario']);
+			$hoja->mergeCells($fila_ini,$columna['tx_proyecto'],$fila-1,$columna['tx_proyecto']);
+			$hoja->mergeCells($fila_ini,$columna['tx_organizacion'],$fila-1,$columna['tx_organizacion']);
+			$hoja->mergeCells($fila_ini,$columna['tx_lugar_ejecucion'],$fila-1,$columna['tx_lugar_ejecucion']);
+			$hoja->mergeCells($fila_ini,$columna['nu_orden_interna'],$fila-1,$columna['nu_orden_interna']);
+			$hoja->mergeCells($fila_ini,$columna['nu_renglon'],$fila-1,$columna['nu_renglon']);
+			$hoja->mergeCells($fila_ini,$columna['tx_prioridad'],$fila-1,$columna['tx_prioridad']);
+			$hoja->mergeCells($fila_ini,$columna['nu_plazo_ejec'],$fila-1,$columna['nu_plazo_ejec']);
+			$hoja->mergeCells($fila_ini,$columna['tx_tipo_presupuesto'],$fila-1,$columna['tx_tipo_presupuesto']);
+			$hoja->mergeCells($fila_ini,$columna['tx_tipo_act'],$fila-1,$columna['tx_tipo_act']);
+			$hoja->mergeCells($fila_ini,$columna['fe_especificaciones'],$fila-1,$columna['fe_especificaciones']);
+			$hoja->mergeCells($fila_ini,$columna['fe_inicio_estimada_p'],$fila-1,$columna['fe_inicio_estimada_p']);
+			$hoja->mergeCells($fila_ini,$columna['fe_inicio_estimada_a'],$fila-1,$columna['fe_inicio_estimada_a']);
+			$hoja->mergeCells($fila_ini,$columna['tx_naturaleza'],$fila-1,$columna['tx_naturaleza']);
+			$hoja->mergeCells($fila_ini,$columna['tx_estrategia_adj'],$fila-1,$columna['tx_estrategia_adj']);
+			$hoja->mergeCells($fila_ini,$columna['nu_contratos_asociados'],$fila-1,$columna['nu_contratos_asociados']);
+			$hoja->mergeCells($fila_ini,$columna['tx_tipo_contrato'],$fila-1,$columna['tx_tipo_contrato']); 
+			$hoja->mergeCells($fila_ini,$columna['tx_regimen_lab'],$fila-1,$columna['tx_regimen_lab']);
+			$hoja->mergeCells($fila_ini,$columna['tx_modalidad'],$fila-1,$columna['tx_modalidad']);
+			$hoja->mergeCells($fila_ini,$columna['tx_mecanismo_verif'],$fila-1,$columna['tx_mecanismo_verif']);
+			$hoja->mergeCells($fila_ini,$columna['tx_rango'],$fila-1,$columna['tx_rango']);
+			$hoja->mergeCells($fila_ini,$columna['tx_obser'],$fila-1,$columna['tx_obser']);
+			
+			$temp_co_control=$row['co_proyecto'];
+			$fila_ini=$fila;
+		}*/
+		$fila++;$i++;
+											}
+				//echo $hoja;							
+											
+			/*$hoja->mergeCells($fila_ini,$columna['rownum'],$fila-1,$columna['rownum']);
+			$hoja->mergeCells($fila_ini,$columna['nu_anio'],$fila-1,$columna['nu_anio']);
+			$hoja->mergeCells($fila_ini,$columna['tx_usuario'],$fila-1,$columna['tx_usuario']);
+			$hoja->mergeCells($fila_ini,$columna['tx_proyecto'],$fila-1,$columna['tx_proyecto']);
+			$hoja->mergeCells($fila_ini,$columna['tx_organizacion'],$fila-1,$columna['tx_organizacion']);
+			$hoja->mergeCells($fila_ini,$columna['tx_lugar_ejecucion'],$fila-1,$columna['tx_lugar_ejecucion']);
+			$hoja->mergeCells($fila_ini,$columna['nu_orden_interna'],$fila-1,$columna['nu_orden_interna']);
+			$hoja->mergeCells($fila_ini,$columna['nu_renglon'],$fila-1,$columna['nu_renglon']);
+			$hoja->mergeCells($fila_ini,$columna['tx_prioridad'],$fila-1,$columna['tx_prioridad']);
+			$hoja->mergeCells($fila_ini,$columna['nu_plazo_ejec'],$fila-1,$columna['nu_plazo_ejec']);
+			$hoja->mergeCells($fila_ini,$columna['tx_tipo_presupuesto'],$fila-1,$columna['tx_tipo_presupuesto']);
+			$hoja->mergeCells($fila_ini,$columna['tx_tipo_act'],$fila-1,$columna['tx_tipo_act']);
+			$hoja->mergeCells($fila_ini,$columna['fe_especificaciones'],$fila-1,$columna['fe_especificaciones']);
+			$hoja->mergeCells($fila_ini,$columna['fe_inicio_estimada_p'],$fila-1,$columna['fe_inicio_estimada_p']);
+			$hoja->mergeCells($fila_ini,$columna['fe_inicio_estimada_a'],$fila-1,$columna['fe_inicio_estimada_a']);
+			$hoja->mergeCells($fila_ini,$columna['tx_naturaleza'],$fila-1,$columna['tx_naturaleza']);
+			$hoja->mergeCells($fila_ini,$columna['tx_estrategia_adj'],$fila-1,$columna['tx_estrategia_adj']);
+			$hoja->mergeCells($fila_ini,$columna['nu_contratos_asociados'],$fila-1,$columna['nu_contratos_asociados']);
+			$hoja->mergeCells($fila_ini,$columna['tx_tipo_contrato'],$fila-1,$columna['tx_tipo_contrato']); 
+			$hoja->mergeCells($fila_ini,$columna['tx_regimen_lab'],$fila-1,$columna['tx_regimen_lab']);
+			$hoja->mergeCells($fila_ini,$columna['tx_modalidad'],$fila-1,$columna['tx_modalidad']);
+			$hoja->mergeCells($fila_ini,$columna['tx_mecanismo_verif'],$fila-1,$columna['tx_mecanismo_verif']);
+			$hoja->mergeCells($fila_ini,$columna['tx_rango'],$fila-1,$columna['tx_rango']);
+			$hoja->mergeCells($fila_ini,$columna['tx_obser'],$fila-1,$columna['tx_obser']);*/
+
+	$tiempo=date("d").date("m").date("y")."_".date("H").date("i").date("s");	
+	$libro->send('CONTRATOS_'.$tiempo.'.xls');
+	$libro->close();
+	mysql_close($conexion);
+	
+?>
+

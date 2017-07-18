@@ -1,0 +1,279 @@
+<?php
+require_once 'MyPDO.php';
+
+class planificacionClase extends MyPDO {
+
+//***********************************acá los atributos de las tablas***************************************************************
+private  $columArt = array('co_proyecto'=>'co_proyecto','co_usuario'=>'co_usuario','nu_anio'=>'nu_anio',
+			'tx_proyecto'=>'tx_proyecto','co_ubicacion'=>'co_ubicacion','co_filial'=>'co_filial',
+			'co_direccion'=>'co_direccion','co_division'=>'co_division','co_distrito'=>'co_distrito',
+			'co_naturaleza'=>'co_naturaleza','co_modalidad'=>'co_modalidad','co_regimen_lab'=>'co_regimen_lab',
+			'co_organizacion'=>'co_organizacion','co_mecanismo_verif'=>'co_mecanismo_verif','co_rango'=>'co_rango',
+			'nu_plazo_ejec'=>'nu_plazo_ejec', 'co_tipo_presupuesto'=>'co_tipo_presupuesto','co_tipo_act'=>'co_tipo_act',
+			'fe_inicio_estimada_p'=>'fe_inicio_estimada_p','fe_inicio_estimada_a'=>'fe_inicio_estimada_a',
+			'nu_renglon'=>'nu_renglon','fe_especificaciones'=>'fe_especificaciones','tx_obser'=>'tx_obser',
+			'nu_monto_original'=>'nu_monto_original','nu_contratos_asociados'=>'nu_contratos_asociados',
+			'tx_lugar_ejecucion'=>'tx_lugar_ejecucion','co_tipo_contrato'=>'co_tipo_contrato','co_tipo_proyecto'=>'co_tipo_proyecto',
+			'co_estrategia_adj'=>'co_estrategia_adj', 'tx_ubicacion_etc'=>'tx_ubicacion_etc',
+			'nu_orden_interna'=>'nu_orden_interna','co_prioridad'=>'co_prioridad','monto_max_rango'=>'monto_max_rango',
+			'co_ubicacion_usuario'=>'co_ubicacion_usuario','co_organizacion_usuario'=>'co_organizacion_usuario');
+	
+public $columFiltros = array('co_usuario'=>'co_usuario','nu_anio'=>'nu_anio','tx_proyecto'=>'tx_proyecto','co_ubicacion'=>'co_ubicacion',
+			'co_naturaleza'=>'co_naturaleza','co_modalidad'=>'co_modalidad','co_regimen_lab'=>'co_regimen_lab',
+			'co_organizacion'=>'co_organizacion','co_mecanismo_verif'=>'co_mecanismo_verif','co_rango'=>'co_rango','nu_plazo_ejec'=>'nu_plazo_ejec', 
+			'co_tipo_presupuesto'=>'co_tipo_presupuesto','co_tipo_act'=>'co_tipo_act','fe_inicio_estimada_p'=>'fe_inicio_estimada_p',
+			'fe_inicio_estimada_a'=>'fe_inicio_estimada_a','nu_renglon'=>'nu_renglon','fe_especificaciones'=>'fe_especificaciones',
+			'tx_ubicacion_etc'=>'tx_ubicacion_etc');
+	
+public function convertArrayKeysToUtf88($array1) {
+			$convertedArray1 = array();
+    			$convertedArray = array();
+    			foreach($array1 as $array) {
+    			foreach($array as $key => $value) {
+			if(!mb_check_encoding($value, 'UTF-8')){
+			$value = utf8_encode($value); }
+
+		     	$convertedArray[$key] = $value;
+}
+			$convertedArray1[] = $convertedArray;
+}
+    return $convertedArray1;
+  }
+   
+	
+public function mostrar($start='0', $limit='0', $sort = "", $dir = "ASC"){
+		global $filtros;
+		switch($_SESSION['co_rol']){
+
+			case 0://Administrador del Sistema
+				$cadena="";
+			break;
+			case 12://Administrador de Area
+				$cadena=" AND c003t_proyecto.co_ubicacion_usuario=".$_SESSION['co_ubicacion']." 
+				AND c003t_proyecto.co_organizacion_usuario=".$_SESSION['co_organizacion'];
+			break;
+			case 11://Gerente de Region
+				$cadena=" AND c003t_proyecto.co_ubicacion_usuario=".$_SESSION['co_ubicacion']." 
+				AND c003t_proyecto.co_organizacion_usuario=".$_SESSION['co_organizacion'];
+			break;
+			case 1://Gerente de Area
+				$cadena=" AND c003t_proyecto.co_ubicacion_usuario=".$_SESSION['co_ubicacion']." 
+				AND c003t_proyecto.co_organizacion_usuario=".$_SESSION['co_organizacion'];
+			break;
+			case 2://Lider de Planificacion
+				$cadena=" AND c003t_proyecto.co_ubicacion_usuario=".$_SESSION['co_ubicacion']." 
+				AND c003t_proyecto.co_organizacion_usuario=".$_SESSION['co_organizacion'];
+			break;
+			case 3://Supervisor de Planificacion
+				$cadena=" AND c003t_proyecto.co_ubicacion_usuario=".$_SESSION['co_ubicacion']." 
+				AND c003t_proyecto.co_organizacion_usuario=".$_SESSION['co_organizacion'];
+			break;
+			case 10://Analista de Planificacion
+				$cadena=" AND c003t_proyecto.co_ubicacion_usuario=".$_SESSION['co_ubicacion']." 
+				AND c003t_proyecto.co_organizacion_usuario=".$_SESSION['co_organizacion'];
+			break;
+			case 4://Lider de Contratacion
+				$cadena=" AND c003t_proyecto.co_ubicacion_usuario=".$_SESSION['co_ubicacion']." 
+				AND c003t_proyecto.co_organizacion_usuario=".$_SESSION['co_organizacion'];
+			break;
+			case 5://Supervisor de Contratacion
+				$cadena=" AND c003t_proyecto.co_ubicacion_usuario=".$_SESSION['co_ubicacion']." 
+				AND c003t_proyecto.co_organizacion_usuario=".$_SESSION['co_organizacion'];
+			break;
+			case 6://Analista de Contratacion
+				$cadena=" AND c003t_proyecto.co_ubicacion_usuario=".$_SESSION['co_ubicacion']." 
+				AND c003t_proyecto.co_organizacion_usuario=".$_SESSION['co_organizacion'];
+			break;
+			case 7://Lider de Administracion
+				$cadena=" AND c003t_proyecto.co_ubicacion_usuario=".$_SESSION['co_ubicacion']." 
+				AND c003t_proyecto.co_organizacion_usuario=".$_SESSION['co_organizacion'];
+			break;
+			case 8://Supervisor de Administracion
+				$cadena=" AND c003t_proyecto.co_ubicacion_usuario=".$_SESSION['co_ubicacion']." 
+				AND c003t_proyecto.co_organizacion_usuario=".$_SESSION['co_organizacion'];
+			break;
+			case 9://Analista de Administracion
+				$cadena=" AND c003t_proyecto.co_ubicacion_usuario=".$_SESSION['co_ubicacion']." 
+				AND c003t_proyecto.co_organizacion_usuario=".$_SESSION['co_organizacion'];
+			break;
+						
+		}
+			
+		 
+		$query = "SELECT  
+
+		c003t_proyecto.co_proyecto, 
+		c003t_proyecto.nu_anio,
+		c003t_proyecto.co_usuario, c001t_usuario.tx_usuario,
+		c003t_proyecto.tx_proyecto AS tx_proyecto_, 
+		(SELECT co_ubicacion FROM i002t_ubicacion u_div WHERE u_div.co_ubicacion=u.co_padre) AS co_division,
+		(SELECT tx_ubicacion FROM i002t_ubicacion u_div WHERE u_div.co_ubicacion=u.co_padre) AS tx_division,
+		(SELECT co_padre FROM i002t_ubicacion u_div WHERE u_div.co_ubicacion=u.co_padre) AS co_division_padre,
+		(SELECT co_ubicacion FROM i002t_ubicacion u_dir WHERE u_dir.co_ubicacion=co_division_padre) AS co_direccion,
+		(SELECT tx_ubicacion FROM i002t_ubicacion u_dir WHERE u_dir.co_ubicacion=co_division_padre) AS tx_direccion,
+		(SELECT co_padre FROM i002t_ubicacion u_dir WHERE u_dir.co_ubicacion=co_division_padre) AS co_direccion_padre,
+		(SELECT co_ubicacion FROM i002t_ubicacion u_fil WHERE u_fil.co_ubicacion=co_direccion_padre) AS co_filial,
+		(SELECT tx_ubicacion FROM i002t_ubicacion u_fil WHERE u_fil.co_ubicacion=co_direccion_padre) AS tx_filial,
+		(SELECT co_padre FROM i002t_ubicacion u_fil WHERE u_fil.co_ubicacion=co_direccion_padre) AS co_filial_padre,
+		c003t_proyecto.co_ubicacion AS co_distrito, u.tx_ubicacion AS tx_distrito,
+		c003t_proyecto.co_ubicacion, CONCAT(tx_ubicacion) AS tx_ubicacion_final,
+		
+		c003t_proyecto.tx_ubicacion_etc,
+		c003t_proyecto.co_organizacion, i005t_organizacion.tx_organizacion, 
+		c003t_proyecto.co_naturaleza, i008t_naturaleza.tx_naturaleza, 
+		c003t_proyecto.co_modalidad, i006t_modalidad.tx_modalidad,
+		c003t_proyecto.co_regimen_lab, i007t_regimen_lab.tx_regimen_lab,
+		c003t_proyecto.co_mecanismo_verif, i016t_mecanismo_verif.tx_mecanismo_verif,
+		c003t_proyecto.co_rango, CONCAT(tx_rango,' (',ut_minimo,' - ' ,ut_maximo,' UT)') AS tx_rango, 		
+		c003t_proyecto.nu_plazo_ejec AS nu_plazo_ejec_,  
+		c003t_proyecto.tx_lugar_ejecucion,
+		c003t_proyecto.nu_orden_interna,
+		c003t_proyecto.co_prioridad, pri.tx_prioridad,
+		c003t_proyecto.nu_contratos_asociados,
+		c003t_proyecto.co_tipo_proyecto, i010t_tipo_proyecto.tx_tipo_proyecto,
+		c003t_proyecto.co_tipo_presupuesto, i018t_tipo_presupuesto.tx_tipo_presupuesto,
+		c003t_proyecto.co_tipo_act, i019t_tipo_act.tx_tipo_act,
+		c003t_proyecto.fe_inicio_estimada_p,
+		c003t_proyecto.fe_inicio_estimada_a,
+		c003t_proyecto.fe_especificaciones,
+		c003t_proyecto.nu_renglon AS nu_renglon_,
+		c003t_proyecto.tx_obser,
+		c003t_proyecto.monto_max_rango,
+		c003t_proyecto.co_tipo_contrato, i034t_tipo_contrato.tx_tipo_contrato,
+		c003t_proyecto.co_estrategia_adj, i035t_estrategia_adj.tx_estrategia_adj
+
+		FROM c003t_proyecto
+		LEFT JOIN c001t_usuario ON c003t_proyecto.co_usuario= c001t_usuario.co_usuario
+		LEFT JOIN i002t_ubicacion AS u ON c003t_proyecto.co_ubicacion= u.co_ubicacion
+		LEFT JOIN i003t_tipo_ubicacion  AS tu ON u.co_tipo_ubicacion = tu.co_tipo_ubicacion
+		LEFT JOIN i034t_tipo_contrato ON c003t_proyecto.co_tipo_contrato = i034t_tipo_contrato.co_tipo_contrato
+		LEFT JOIN i035t_estrategia_adj ON c003t_proyecto.co_estrategia_adj = i035t_estrategia_adj.co_estrategia_adj
+		LEFT JOIN i005t_organizacion ON c003t_proyecto.co_organizacion = i005t_organizacion.co_organizacion
+		LEFT JOIN i008t_naturaleza ON c003t_proyecto.co_naturaleza = i008t_naturaleza.co_naturaleza
+		LEFT JOIN i006t_modalidad ON c003t_proyecto.co_modalidad = i006t_modalidad.co_modalidad
+		LEFT JOIN i007t_regimen_lab ON c003t_proyecto.co_regimen_lab = i007t_regimen_lab.co_regimen_lab
+		LEFT JOIN i016t_mecanismo_verif ON c003t_proyecto.co_mecanismo_verif = i016t_mecanismo_verif.co_mecanismo_verif
+		LEFT JOIN i017t_rango ON c003t_proyecto.co_rango = i017t_rango.co_rango
+		LEFT JOIN i018t_tipo_presupuesto ON c003t_proyecto.co_tipo_presupuesto = i018t_tipo_presupuesto.co_tipo_presupuesto
+		LEFT JOIN i010t_tipo_proyecto ON c003t_proyecto.co_tipo_proyecto=i010t_tipo_proyecto.co_tipo_proyecto
+		LEFT JOIN i019t_tipo_act ON c003t_proyecto.co_tipo_act = i019t_tipo_act.co_tipo_act
+		LEFT JOIN i020t_prioridad AS pri ON c003t_proyecto.co_prioridad= pri.co_prioridad
+
+		WHERE 0=0 $cadena ".$this->filtrarQuery($filtros);			
+					
+		if ($sort != "") {
+			$query .= " ORDER BY ".$sort." ".$dir;
+		}
+		else{
+			$query .= " ORDER BY co_proyecto";
+		}
+		
+		if ($limit != "") {
+			$query .= ' LIMIT '.$start.' , '.$limit;
+		}	
+		//echo $query;
+		$r = $this->pdo->_query($query);
+		$resultado=$this->convertArrayKeysToUtf88($r);
+		return $resultado;
+  } 
+
+	public function contar(){
+		
+		global $filtros;
+				 
+		 $contar = "SELECT
+					count(*) as cuenta FROM c003t_proyecto ".$this->filtrarQuery($filtros);
+							
+		 $r = $this->pdo->_query($contar);
+				 
+		return $r;
+	  } 
+	 
+	public function listar($campo,$tabla) {
+		
+		$query =  "SELECT DISTINCT $campo AS id, $tabla.* FROM $tabla ";
+		//echo $query;
+		$r = $this->pdo->_query($query);
+			
+		return $r;
+	 }  
+    
+    public function buscar() {		
+	$query = "SELECT fe_especificaciones FROM c003t_proyecto WHERE co_proyecto=".$_REQUEST['co_proyecto']." ";
+	$r = $this->pdo->_query($query);
+	return $r;
+	 } 
+    
+    public function insertar($registro)  {
+		//echo "prueba insertar";
+		$registro = array_intersect_key($registro, $this->columArt);
+		//print_r($registro); //imprime el arreglo q envio
+		$r = $this->pdo->_insert('c003t_proyecto', $registro);
+		if($r==1 ){
+					//echo "prueba";
+					return true;
+				   }
+		else{
+			return "Ha ocurrido un error al intentar insertar los datos del Documento."; //$oper1.$oper2;
+		    }
+		
+		return $r;  
+
+  }  
+  public function insertarLastId($registro)  {
+		//echo "prueba insertar";
+		$registro = array_intersect_key($registro, $this->columArt);
+		$r = $this->pdo->_insertLastId('c003t_proyecto', $registro);
+		return $r;  
+
+  } 
+  public function actualizar($registro, $condiciones) {
+	/*	echo '<pre>';
+			//$result = mysql_query("SET NAMES 'utf8'", $conex);
+			
+			//print_r($Resultados);
+			//print_r($condiciones);
+			echo '</pre>';	
+*/
+		//print_r($registro);
+		$registro1 = array_intersect_key($registro, $this->columArt);
+		$oper2 = $this->pdo->_update('c003t_proyecto', $registro1, $condiciones);
+		
+		
+		//$registro2 = array_intersect_key($registro, $this->columArt);
+		//$oper3 = $this->pdo->_insert('c004t_proceso', $registro2, $condiciones);
+
+		//echo '<pre>';
+		//print_r($this->columArt);
+		//echo '</pre>';
+
+		if($oper2){
+				
+			return true;
+		}
+		else{
+			return "Ha ocurrido un error al intentar actualizar los datos del Documento."; //$oper1.$oper2;
+		}
+		
+		if($registro2==1 ){
+					//echo "prueba";
+					return true;
+				   }
+		else{
+			return "Ha ocurrido un error al intentar insertar los datos del Documento."; //$oper1.$oper2;
+		    }
+		
+		return $r;  
+		
+  } 
+
+  public function eliminar($condiciones) {
+  	//echo $condiciones;
+  	$r = $this->pdo->_delete('c003t_proyecto', $condiciones);  
+	return $r;
+  } // end of member function eliminarDocumento
+ 
+
+}
+   
+?>

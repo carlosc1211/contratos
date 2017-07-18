@@ -1,0 +1,1569 @@
+//---------------------------------------SECCION DE NAMESPACE----------------------------------------------------------------------//
+/*Ext.ns('administracion'); //creacion de namespace
+Ext.ns('contratacion');
+administracion.mostrar='muestra'; //agregar propiedad mostrar al objeto administracion
+administracion.sumar=function (x,y) 
+					{
+						
+						//alert(x+y);
+						administracion.ventana.show();
+					}
+administracion.ventana=new Ext.Window({
+	id:'win',
+		modal: true,					
+		closable: true,
+		layout:'fit',
+		width:450,
+		height:530,
+		closeAction:'hide',});
+
+administracion.division= new Ext.form.TextField({fieldLabel: 'Divisions', id:'', xtype: 'textfield',anchor: '90%', disabled:true});*/
+//---------------------------------------SECCION DE NAMESPACE----------------------------------------------------------------------//
+function limpiarForm(){
+	
+	Ext.getCmp('InicioFom').getForm().reset();
+	//Ext.getCmp('InicioFom').getForm().reset();
+	/*Ext.getCmp('nu_solped').setValue('');
+	Ext.getCmp('nu_contrato').setValue('');
+	Ext.getCmp('nu_expediente').setValue('');
+	Ext.getCmp('fe_inicio').setValue('');
+	Ext.getCmp('fe_culminacion').setValue('');
+	//Ext.getCmp('tiempo_ejecucion').setValue('');
+	Ext.getCmp('nu_monto_asoc_total').setValue('');
+	Ext.getCmp('tx_descripcionp').setValue('');
+	Ext.getCmp('tx_empresaa').setValue('');
+	Ext.getCmp('nu_riff').setValue('');
+	Ext.getCmp('nu_telefonicoo').setValue('');
+	Ext.getCmp('nu_telefonico_opcionall').setValue('');
+	Ext.getCmp('tx_tipo_empresaa').setValue('');
+	Ext.getCmp('tx_representantee').setValue('');
+	Ext.getCmp('nu_pedidoo').setValue('');
+	/*Ext.getCmp('nu_monto_consumido').setValue('');
+	Ext.getCmp('nu_monto_disponible').setValue('');
+	Ext.getCmp('nu_contrato').setValue('');
+	Ext.getCmp('nu_contrato').setValue('');
+	Ext.getCmp('nu_contrato').setValue('');
+	Ext.getCmp('nu_contrato').setValue('');
+	Ext.getCmp('nu_contrato').setValue('');
+	Ext.getCmp('nu_contrato').setValue('');
+	Ext.getCmp('nu_contrato').setValue('');
+	Ext.getCmp('nu_contrato').setValue('');
+	Ext.getCmp('nu_contrato').setValue('');
+	Ext.getCmp('nu_contrato').setValue('');
+	Ext.getCmp('nu_contrato').setValue('');
+	Ext.getCmp('nu_contrato').setValue('');
+	Ext.getCmp('nu_contrato').setValue('');
+	Ext.getCmp('nu_contrato').setValue('');
+	Ext.getCmp('nu_contrato').setValue('');*/
+	//Ext.getCmp('DatosFom').getForm().reset(); 
+}
+//----------------------------------------------------STORE ADMINISTRACION-----------------------------------------------------------------------//
+var writer = new Ext.data.JsonWriter();
+var store_administracion = new Ext.data.JsonStore({     
+	 id:'store_administracion',
+	 url: 'php/AdministracionInterfaz.php', 
+	 writer: writer,
+	 root: 'Resultados',
+	 baseParams: {accion:'refrescar'},
+        fields: [
+				//inicio
+					{name:'tx_usuario', type: 'varchar'},
+					{name:'nu_solped', type: 'varchar'},
+					{name:'nu_contrato', type: 'varchar'},
+					{name:'nu_expediente', type: 'varchar'},//ojo  
+					{name:'fe_inicio',type: 'date'},
+					{name:'fe_culminacion',type: 'date'},
+					{name:'tiempo_ejecucion', type: 'varchar'}, //ojo
+					{name:'nu_monto_asoc_total',type: 'varchar'},
+					{name:'tx_descripcion',type:'varchar'},
+					{name:'tx_empresa', type: 'varchar'},
+					{name:'nu_rif',type: 'varchar'},
+					{name:'nu_telefonico',type: 'varchar'},
+					{name:'nu_telefonico_opcional',type: 'varchar'},
+					{name:'tx_tipo_empresa',type: 'varchar'},
+					{name:'tx_representante',type: 'varchar'},	
+					{name:'pedido', type: 'varchar'},
+					{name:'nu_monto_consumido',type: 'varchar'},
+					{name:'nu_monto_disponible',type: 'varchar'}
+								         
+				]
+});
+store_administracion.reload({params:{tab:'pendientes'}});
+//----------------------------------------------------GRID ADMINISTRACION------------------------------------------------------------------------//
+var grid = new Ext.grid.GridPanel({
+    store: store_administracion, 
+    stripeRows: true,
+    width:1082,
+    height: 800, //ojo despues pasar a 800
+	margins: '0 5 5 5',
+    region:'center', 
+    id:'grid_administracion',
+           
+	columns:[
+				new Ext.grid.RowNumberer(),
+				
+				{header: 'N&deg; Contrato', width: 80, sortable: true, dataIndex: 'nu_contrato'},
+				{header: 'N&deg; Pedido', width: 80, sortable: true, dataIndex: 'pedido'},
+				{header: 'N&deg; SOLP', width: 80, sortable: true, dataIndex: 'nu_solped'},
+				{header: 'Analista Responsable', width: 80, sortable: true, dataIndex: 'tx_usuario'},
+				{header: 'Gerencia', width: 80, sortable: true, dataIndex: 'tx_organizacion'},
+				{header: 'Nombre de la Empresa', width: 125, sortable: true, dataIndex: 'tx_empresa'},
+				{header: 'Observacion', width: 125, sortable: true, dataIndex: 'tx_descripcion'},
+				{header: 'Representante Legal', width: 115, sortable: true, dataIndex: 'tx_representante'},
+				{header: 'Fecha de Inicio', width: 95, sortable: true, renderer: Ext.util.Format.dateRenderer('m-d-Y'), dataIndex: 'fe_inicio'},
+				{header: 'Fecha de Culminaci&oacute;n', width: 120, sortable: true, renderer: Ext.util.Format.dateRenderer('m-d-Y'), dataIndex: 'fe_culminacion'},
+				{header: 'Monto Original', width: 95, sortable: true, /*renderer: 'usMoney', */ dataIndex: 'nu_monto_asoc_total'},
+				{header: 'Monto Consumido', width: 100, sortable: true, /*renderer: 'usMoney',*/  dataIndex: 'nu_monto_consumido'},
+				{header: 'Monto Disponible', width: 100, sortable: true, /*renderer: 'usMoney',*/ dataIndex: 'nu_monto_disponible'},
+				{header: 'Dias de Pr&oacute;rroga', width: 100, sortable: true, dataIndex: 'nu_nuevo_plazo'},
+				{header: 'Fecha Modificada', width: 95, sortable: true, renderer: Ext.util.Format.dateRenderer('m/d/Y'), dataIndex: 'fe_modificada'},
+				{header: 'Monto Modificado', width: 110, sortable: true, /*renderer: 'usMoney',*/ dataIndex: 'nu_monto_modificado'}
+			],
+	
+	listeners: 	{
+					'rowdblclick': function (grid,rowIndex,e) 
+					{
+						
+						win.setTitle('N&deg; Contrato: '+grid.store.getAt(rowIndex).get('nu_contrato')); //para colocar nombre al encabezado de la ventana dependiendo de (x)campo del formularia
+						win.show(this);
+					}
+				},
+					   //Carga los datos en el formulario 	    
+	sm: new Ext.grid.RowSelectionModel
+	({
+		singleSelect: true,
+		listeners: {
+						rowselect: function(sm, row, rec)  
+						{
+							 InicioFom.getForm().loadRecord(rec);
+							 DatosFom.getForm().loadRecord(rec);
+							 ValuacionesFom.getForm().loadRecord(rec);
+							 ModificacionesFom.getForm().loadRecord(rec);
+							 VariacionesFom.getForm().loadRecord(rec);
+							 controlFom.getForm().loadRecord(rec);
+							 CierreFom.getForm().loadRecord(rec);
+							 
+							 //para que los id no tengan problemas	
+							 Ext.getCmp('monto_original').setValue(rec.data.nu_monto_asoc_total);
+							 Ext.getCmp('fe_inicio1').setValue(rec.data.fe_inicio);
+							 Ext.getCmp('fe_culminacion1').setValue(rec.data.fe_culminacion);
+							 Ext.getCmp('tx_descripcionp').setValue(rec.data.tx_descripcion);
+							 Ext.getCmp('tx_empresaa').setValue(rec.data.tx_empresa);
+							 Ext.getCmp('nu_riff').setValue(rec.data.nu_rif);
+							 Ext.getCmp('nu_telefonicoo').setValue(rec.data.nu_telefonico);
+							 Ext.getCmp('nu_telefonico_opcionall').setValue(rec.data.nu_telefonico_opcional);
+							 Ext.getCmp('tx_tipo_empresaa').setValue(rec.data.tx_tipo_empresa);
+							 Ext.getCmp('tx_representantee').setValue(rec.data.tx_representante);
+							 Ext.getCmp('nu_monto_valuacionn').setValue(rec.data.nu_monto_valuacion);
+							 Ext.getCmp('nu_solpedd').setValue(rec.data.nu_solped);
+							 Ext.getCmp('nu_expedientee').setValue(rec.data.nu_expediente);
+							 
+						} 
+				   }
+	}),	
+//--------------------------------------------TOOLBAR ADMINISTRACION----------------------------------------------------------------------
+		
+//TOOLBAR PRINCIPAL
+	tbar: 
+		[{
+			text: 	 'Nuevo Contrato', 
+			iconCls: 'proceso-add', 
+			handler: function () 	
+			{	
+					
+								//InicioFom.getForm().reset();
+								
+				limpiarForm();
+									
+				//Win.setTitle('Nuevo Proceso');
+				accion= 'insertar';
+				win.show();
+			},
+		},
+		{
+			text: 'Eliminar Contrato',	
+			iconCls:'proceso-delete',
+			disabled:true,
+			handler: function () {
+						var rec = grid.getSelectionModel().getSelected();
+						if (!rec) {
+							return false;
+						}
+						//grid.store.remove(rec);
+						 Ext.MessageBox.confirm("[ SISCO ]","Desea Eliminar El Registro Seleccionado ?", function(btn)
+						   {
+							  if(btn == 'yes')
+							  //{Ext.Msg.alert("se ha eliminado correctamente el registro", "");
+												
+									grid.store.reload
+									({    
+										params:
+										{
+											//Id:grid_administracion,  
+											accion:'eliminar'
+										}
+									});
+									
+									grid.store.remove(rec);
+								
+							  //}
+							  
+							});
+					},
+					
+		},],
+		bbar: 
+			
+				new Ext.PagingToolbar({
+				pageSize: 25,
+				store: store_administracion, // OJO buscar una forma que no traiga todos los campos que estan en procesos y cerrados, que es lo que hace en este momento...
+				displayInfo: true,
+				displayMsg: 'Displaying topics {0} - {1} of {2}',
+				emptyMsg: "No topics to display"
+            /*items:[
+					'-', {
+					pressed: true,
+					enableToggle:true,
+					text: 'provando',
+					//cls: 'x-btn-text-icon details',
+					toggleHandler: function(btn, pressed){
+						var view = grid.getView();
+						view.showPreview = pressed;
+						view.refresh();
+                }
+            }]*/
+        }),
+});			
+//----------------------------------------------------I FORMULARIO INICIO DEL CONTRATO  ---------------------------------------------------------//
+var InicioFom = new Ext.FormPanel({
+        
+        id:'InicioFom',
+        labelAlign: 'top',
+		frame:true,		
+	    bodyStyle: 'padding:5px 5px 0',
+	    height: 615,	    
+
+        items: [{
+               xtype:'fieldset',
+               title: 'Inicio',
+               collapsible: true,
+               autoHeight:true,
+               collapsed: true,
+               layout: 'column',
+                    
+        items: [{
+               columnWidth: .5,
+			   layout: 'form',
+        items: [{fieldLabel: 'N&deg; SOLP', id:'nu_solpedd', xtype: 'textfield', anchor: '90%' /*allowBlank:false*/}]   
+		    },  
+            {
+			   columnWidth: .5,
+			   layout: 'form',
+         items: [{fieldLabel: 'N&deg Contrato', id:'nu_contrato', xtype: 'textfield', anchor: '90%'}]
+            },
+            {
+			   columnWidth: .5,
+			   layout: 'form',
+         items: [{fieldLabel: 'N&deg Expediente', id:'nu_expedientee', xtype: 'textfield', anchor: '90%'}]
+            },  
+            
+		    {
+			   columnWidth: .5,
+			   layout: 'form',
+		items: [{fieldLabel: 'Fecha Inicio del Contrato', id:'fe_inicio', format: 'm-d-Y', xtype: 'datefield', anchor: '90%'}]
+		    },
+		    {
+			   columnWidth: .5,
+			   layout: 'form',
+		items: [{fieldLabel: 'Fecha de Finalizaci&oacute;n', id:'fe_culminacion', format: 'Y-m-d', xtype: 'datefield', anchor: '90%'}]
+		    },
+		    {
+			   columnWidth: .5,
+			   layout: 'form',
+         items: [{fieldLabel: 'Carta de Inicio Preliminar', id:'fe_carta_inicio', xtype: 'datefield', anchor: '90%'}]               
+			},
+		    {
+			   columnWidth: .5,
+			   layout: 'form',
+         items: [{fieldLabel: 'Tiempo de Ejecuci&oacute;n',id:'nu_ejecucion', xtype: 'textfield', anchor: '90%'}]
+            },
+            {
+			   columnWidth: .5,
+			   layout: 'form',
+		items: [{fieldLabel: 'Fecha Firma del Contrato', id:'fe_firma_contrato', format: 'm-d-Y', xtype: 'datefield', anchor: '90%'}]
+		    },  
+            /*{
+			   columnWidth: .5,
+			   layout: 'form',
+         items: [{fieldLabel: 'Estado Actual del Contrato', id:'tx_estado', xtype: 'textfield', anchor: '90%'}]
+            },*/
+            
+			
+			{
+				columnWidth: 1.1,
+				layout: 'form',
+		 items: [{fieldLabel: 'Descripci&oacute;n', id:'tx_descripcionp', xtype: 'textarea', anchor: '90%'}]
+			},
+	   ]
+   },
+   {
+      xtype:'fieldset',
+      title: 'Monto Original del Contrato',
+      collapsible: true,
+      collapsed: true,
+      autoHeight:true,
+      layout: 'column',
+      
+		 items: [{
+				   columnWidth: .5,
+				   layout: 'form',
+         items: [{fieldLabel: 'Monto en Bs', id:'nu_monto_asoc_total', xtype: 'textfield', anchor: '90%'}]
+			},
+			{
+				columnWidth: .5,
+				layout: 'form',
+		 items: [{fieldLabel: 'Monto en $', id:'nu_monto_dolares', xtype: 'textfield', anchor: '90%'}]
+			},
+			{
+				columnWidth: .5,
+				layout: 'form',
+		 items: [{fieldLabel: 'Monto en Euro', id:'nu_monto_euro', xtype: 'textfield', anchor: '90%'}]
+			},
+			{
+				columnWidth: .5,
+				layout: 'form',
+		 items: [{fieldLabel: 'Equivalente', id:'nu_monto_equivalente', xtype: 'textfield', anchor: '90%'}]
+			},
+			{
+				columnWidth: .5,
+				layout: 'form',
+		 items: [{fieldLabel: 'Monto Total', id:'nu_monto_equivalentee', xtype: 'textfield', anchor: '90%'}]
+			}]
+   
+    },
+     {
+      xtype:'fieldset',
+      title: 'Responsables',
+      collapsible: true,
+      collapsed: true,
+      autoHeight:true,
+      layout: 'column',
+     items: [{
+			  /* columnWidth: .5,
+			   layout: 'form',
+		items: [GetComboGrid('usuario','co_usuario','Supervisor Responsables')]    
+            },*/
+			   columnWidth: .5,
+			   layout: 'form',
+		items: [GetComboGrid('usuarios','co_usuario','Analista Responsable')]    
+            }]
+    }]
+});      
+//----------------------------------------------------II FORMULARIO DATOS GENERALES--------------------------------------------------------------//
+//----------falta... termina lo de pedido, aun no muetra el ususario si no el codigo del usuario
+
+var store_Usuario = new Ext.data.JsonStore({
+	id:'store_Usuario',
+	writer: writer,
+	root: 'Resultados',
+	idProperty: 'Usuario',
+	url:'php/AdministracionInterfaz.php',
+	baseParams: {accion:'refrescar'},
+	//allowBlank: false,
+	fields:  [
+		   {name: 'nu_pedido', type: 'string'},
+		   {name: 'tx_observacion', type: 'string'}		  
+		      
+			]
+/*listeners: {
+        update : function(store, record,operation) {   // function actualizar ///////////////////////////////////////  update
+			//alert(operation);
+			if(operation=='edit'){
+				
+			}
+        },
+		remove : function(store, record,index) {
+			store.reload({params:{co_usuario:record.get('co_usuario')}});
+        }
+    }
+   
+   
+var ComboUsuario= GetComboGrid('usuario','co_usuario','')
+
+	ComboUsuario.on('select', function(combo,record,index)// ver que el pedido no muestre el codigo si no el nombre
+			{
+				//alert(ComboUsuario.getRawValue());
+				
+				fila= GridUsuario.getSelectionModel();
+				//celda= fila.getSelectedCell();
+				                GridUsuario.stopEditing();
+                
+               
+                store.insert(index, p);
+				store.getAt().data.tx_usuario.(cambiarcombo(record));
+				//GridUsuario.store.getAt('celda')[0].set('co_usuario').record.data.co_usuario;	
+				 //grid.startEditing(0, 0);
+			});
+
+ 
+ function cambiarcombo(id){
+	//alert(this.editor.getStore());
+	var str = id.data.tx_usuario;
+	//var
+	//for(i in str.fields)
+	/*
+	var index = str.find('co_usuario', id);
+	
+	if (index > -1) {
+		var record = str.getAt(index); 
+		return record.get('tx_usuario');
+	}
+	return str;
+}*/
+ 
+});
+ 	
+var GridUsuario = new Ext.grid.EditorGridPanel({
+	store: store_Usuario,
+	//reander: reander,
+	sm: new Ext.grid.RowSelectionModel(),
+	Id: 'GridUsuario',
+    title: 'Pedido',		
+	//stripeRows: true,
+   // width:410,
+    height: 230,
+    //stateful: true,
+    frame: true,
+    clicksToEdit: 1,
+ 
+	columns:[	
+				new Ext.grid.RowNumberer(),
+				{header: 'N&deg; Pedido', dataIndex: 'nu_pedido', width: 100, editor: new Ext.form.TextField({allowBlank: false})},
+				{header: 'Descripci&oacute;n', dataIndex: 'tx_observacion', width: 200, editor: new Ext.form.TextField({allowBlank: false})}        		
+			],
+
+
+   tbar:[{
+            text: 'Nuevo Pedido',
+            iconCls: 'agregar',
+            handler: function(){
+								var Pedido = GridUsuario.getStore().recordType;
+								var P = new Pedido({
+													nu_pedido:'',
+													tx_observacion:''});
+								GridUsuario.stopEditing();
+								store_Usuario.insert(0, P);
+								GridUsuario.startEditing(0, 0);
+							  }
+        }, '-',
+        {
+            text: 'Eliminar',
+            iconCls: 'icon-delete',
+            handler: function () {
+						var rec = GridUsuario.getSelectionModel().getSelected();
+						if (!rec) {
+							return false;
+						}
+						GridUsuario.store.remove(rec);
+					}
+        },]
+        
+   /*bbar:[
+        {
+            text: 'Asignar',
+            iconCls: 'guardar',
+            handler: this.onAdd,
+        },
+        ] */
+       
+ });
+  //grid.render('GridUsuario');
+  
+var DatosFom = new Ext.FormPanel({
+       
+	id:'DatosFom',
+	labelAlign: 'top',
+	frame:true,
+	bodyStyle: 'padding:5px 5px 0',
+	//width: 485,
+	height: 615,
+	autoScroll: true,	    
+
+        items: [{
+			   xtype:'fieldset',
+               title: 'Gerencia Solicitante',
+               collapsible: true,
+               collapsed: true,
+               autoHeight:true,
+               layout: 'column',
+               
+        items: [{
+               columnWidth: .5,
+			   layout: 'form',
+        //items: [administracion.division]   
+		    },
+		    {
+			   columnWidth: .5,
+			   layout: 'form',
+         items: [GetCombo('divisionn','co_ubicacion','Division')]    
+            },
+            {
+			   columnWidth: .5,
+			   layout: 'form',
+         items: [GetCombo('distritoo','co_ubicacion','Distrito')]
+            },
+            {
+			   columnWidth: .5,
+			   layout: 'form',
+         //items: [GetComboTipo('gerenciaa','co_','Gerencia',)]
+            },
+            {
+			   columnWidth: .5,
+			   layout: 'form',
+         items: [{fieldLabel: 'Superintendencia', id:'', xtype: 'textfield', anchor: '90%'}]
+            },  
+		    {
+			   columnWidth: .5,
+			   layout: 'form',
+         items: [{fieldLabel: 'Supervisor Responsable', id:'', xtype: 'textfield', anchor: '90%'}]
+            },  
+			]
+ },
+ {
+      xtype:'fieldset',
+      title: 'Datos de la Empresa',
+      collapsible: true,
+      collapsed: true,
+      autoHeight:true,
+      layout: 'column', 
+     // disabled:true,      
+        items: [{
+               columnWidth: .5,
+			   layout: 'form', 
+			   //disabled:true,
+        items: [{fieldLabel: 'Nombre de la Empresa', id:'tx_empresaa', xtype: 'textfield', anchor: '90%'}]   
+		    },
+		    {
+			   columnWidth: .5,
+			   layout: 'form',
+         items: [{fieldLabel: 'RIF', id:'nu_riff', xtype: 'textfield', anchor: '90%'}]    
+            },
+            {
+			   columnWidth: .5,
+			   layout: 'form',
+         items: [{fieldLabel: 'N&deg Telef&oacute;nico', id:'nu_telefonicoo', xtype: 'textfield', anchor: '90%'}]
+			    
+            },
+            {
+			   columnWidth: .5,
+			   layout: 'form',
+         items: [{fieldLabel: 'N&deg Opcional', id:'nu_telefonico_opcionall', xtype: 'textfield', anchor: '90%'}]
+            },  
+		    {
+			   columnWidth: .5,
+			   layout: 'form',
+         items: [{fieldLabel: 'Tipo de Empresa', id:'tx_tipo_empresaa', xtype: 'textfield', anchor: '90%'}]
+            },
+            {
+			   columnWidth: .5,
+			   layout: 'form',
+         items: [{fieldLabel: 'Representante legal de la Empresa', id:'tx_representantee', xtype: 'textfield', anchor: '90%'}]
+             }
+          ]
+ }, 
+ {
+      xtype:'fieldset',
+      title: 'Compromiso de Responsabilidad Social',
+      collapsible: true,
+      collapsed: true,
+      autoHeight:true,
+      layout: 'column', 
+     // disabled:true,      
+        items: [{
+               columnWidth: .5,
+			   layout: 'form', 
+			   //disabled:true,
+        items: [{fieldLabel: 'Aporte al Fondo Social', id:'OJOO', xtype: 'spinnerfield', anchor: '90%'}]   
+		    },
+		    {
+			   columnWidth: .5,
+			   layout: 'form',
+         items: [{fieldLabel: 'Desarrollo de UPC', id:'OJO', xtype: 'spinnerfield', anchor: '90%'}]    
+            },
+            
+          ]
+ }, 
+	GridUsuario,
+  //grid.render('GridUsuario');
+    ]
+ });  
+//-------------------------------------------- -------III FORMULARIO VALUACIONES-----------------------------------------------------------------//
+//------- Store de las Valuaciones.....
+var store_Valuacion = new Ext.data.JsonStore({
+	id:'store_Valuacion',
+	 writer: writer,
+	 url:'php/ValuacionInterfaz.php',
+	 root: 'Resultados',
+	 idProperty: 'Desde',
+fields: [
+		   {name: 'fe_periodoi', type: 'date', dateFormat: 'm/d/y'},
+		   {name: 'fe_periodof', type: 'date', dateFormat: 'm/d/y'},
+		   {name: 'nu_monto_valuacion', type: 'float'},
+		   {name: 'nu_pedido', type: 'float'},
+		   {name: 'fe_recibido', type: 'date', dateFormat: 'm/d/y'},
+		   {name: 'fe_aprobacion', type: 'date', dateFormat: 'm/d/y'},
+		   {name: 'fe_entrega', type: 'date', dateFormat:'Y-m-d'},
+		   {name: 'tx_detalle_serv', type: 'float'}
+		]
+    });
+//------- Grid de las Valuaciones.....
+var GridValuacion = new Ext.grid.GridPanel({
+    store: store_Valuacion,
+    title: 'Valuaciones',		
+	stripeRows: true,
+    //width:410,
+    height: 230,
+    stateful: true,
+    stateId: 'GridValuacion', 
+	columns:[  
+				new Ext.grid.RowNumberer(),
+				{header: 'N&deg; Pedido', width: 80, sortable: true, dataIndex: 'nu_pedido'},
+				{header: 'Desde',  width: 80, sortable: true, renderer: Ext.util.Format.dateRenderer('m/d/Y'),dataIndex: 'fe_periodoi'},
+				{header: 'Hasta',  width: 80, sortable: true, renderer: Ext.util.Format.dateRenderer('m/d/Y'), dataIndex: 'fe_periodof'},
+				{header: 'Monto', width: 80, sortable: true, dataIndex: 'nu_monto_valuacion'},	
+				{header: 'Fecha Recibido por Supervisor', width: 150, sortable: true, renderer: Ext.util.Format.dateRenderer('m/d/Y'), dataIndex: 'fe_recibido'},
+				{header: 'Fecha Aprobaci&oacute;n', width: 100, sortable: true, renderer: Ext.util.Format.dateRenderer('m/d/Y'), dataIndex: 'fe_aprobacion'},
+				{header: 'Fecha Entrega HES', width: 120, sortable: true, renderer: Ext.util.Format.dateRenderer('m/d/Y'), dataIndex: 'fe_entrega'},
+				{header: 'Descripci&oacute;n', width: 125, sortable: true, dataIndex: 'tx_detalle_serv'}	
+			],
+			
+ });
+ //---------PANEL DE LAS VALUACIONES.....
+var ValuacionesFom = new Ext.FormPanel({
+    
+        id:'ValuacionesFom',
+        //labelAlign: 'top',
+		frame:true,		
+	    bodyStyle: 'padding:5px 5px 0',
+	    height: 615,
+	    
+	    items:[{
+			   xtype:'fieldset',
+			   title: 'Monto Pedido',
+			   collapsible: true,
+			   autoHeight:true,
+			   collapsed: true,
+			   layout: 'column',
+			   labelAlign: 'top',
+			   labelWidth: 70,
+		items: [{
+			   columnWidth: .5,
+			   layout: 'form',
+			  
+		 items: [GetCombo('pedido','co_pedido','N&deg; Pedido','')]	  
+			},
+		    {
+			   columnWidth: .5,
+			   layout: 'form',
+		items: [{fieldLabel: 'Monto Original', id:'monto_original', xtype: 'textfield', anchor: '90%'}]
+			},
+			{
+			   columnWidth: .5,
+			   layout: 'form',
+		items: [{fieldLabel: 'Monto Consumido', id:'nu_monto_valuacionn', xtype: 'textfield', anchor: '90%'}]
+			},
+			{
+			   columnWidth: .5,
+			   layout: 'form',
+		items: [{fieldLabel: 'Monto Disponible', id:'monto_disponible', xtype: 'textfield', anchor: '90%'}]
+			},		
+	        ]
+	      },	
+		  {
+			  xtype:'fieldset',
+			  title: 'Valuaciones',
+			  collapsible: true,
+			  autoHeight:true,
+			  collapsed: true,
+			  labelAlign: 'top',
+			  layout: 'column',
+			  labelWidth: 70,
+			  
+				  items: [{
+						   columnWidth: .5,
+						   layout: 'form',
+					items: [{fieldLabel: 'Desde', id:'fe_periodoi', xtype: 'datefield', anchor: '90%'}]  
+						},
+						{
+						   columnWidth: .5,
+						   layout: 'form',    
+					 items: [{fieldLabel: 'Hasta', id:'fe_periodof', xtype: 'datefield', anchor: '100%'}]    
+						},
+						{
+						   columnWidth: .5,
+						   layout: 'form',
+					 items: [{fieldLabel: 'Monto', id:'nu_monto_valuacion', xtype: 'textfield', anchor: '90%'}]
+						},
+						{
+						   columnWidth: .5,
+						   layout: 'form',  
+					 items: [{fieldLabel: 'Fecha Recibido por el Supervisor', id:'fe_recibido', xtype: 'datefield', anchor: '100%'}]
+						},  
+						{
+						   columnWidth: .5,
+						   layout: 'form', 
+					 items: [{fieldLabel: 'Fecha de Aprobaci&oacute;n', id:'fe_aprobacion', xtype: 'datefield', anchor: '90%'}]	
+						},
+						{
+						   columnWidth: .5,
+						   layout: 'form',
+					 items: [{fieldLabel: 'Fecha de Entrega HES',id:'fe_entrega',xtype: 'datefield', anchor: '100%'}]	
+						 },
+						 {
+							columnWidth: 1,
+							layout: 'form',
+					 items: [{fieldLabel: 'Descripci&oacute;n',id:'tx_detalle_serv',xtype: 'textarea',anchor: '100%'}]
+						 } 
+					   ] 
+			     },
+			    
+                GridValuacion,                		 
+	        ]
+ });      
+//-----------------------------------------------------IV FORMULARIO MODIFICACIONES--------------------------------------------------------------//	
+//------- Store de las MODIFICACIONES.....
+var store_Modificaciones = new Ext.data.JsonStore
+({
+	id:'store_Modificaciones',
+	writer: writer,
+	root: 'Resultados',
+	idProperty: 'TipoModificacion',
+
+	fields: [
+			   {name: 'co_tipo_modificacion', type: 'float'},
+			   {name: 'nu_dias_prorrogas', type: 'float'},
+			   {name: 'fe_registro', type: 'date', dateFormat: 'm/d/y'},
+			   {name: 'nu_modificacion', type: 'float'},
+			   {name: 'tx_moneda', type: 'float'},
+			   {name: 'monto_total', type: 'float'},
+			   {name: 'tx_descripcion1', type: 'float'}
+			]
+});
+//------- Grid de las MODIFICACIONES.....
+var GridModificaciones = new Ext.grid.GridPanel
+({
+    store: store_Modificaciones, 
+    title:'Modificaciones',
+	stripeRows: true,
+    //width:410,
+    height: 230,
+    stateful: true,
+    stateId: 'GridModificaciones', 
+    
+	columns:[  
+				new Ext.grid.RowNumberer(),
+				
+				{id:'TipoModificacion', header: 'Tipo de Modificaci&oacute;n', width: 110, sortable: true, dataIndex: 'co_tipo_modificacion'},
+				{header: 'Dia de Pr&oacute;rroga', width: 100, sortable: true, dataIndex: 'nu_dias_prorrogas'},
+				{header: 'Fecha Modificada', width: 100, sortable: true, renderer: Ext.util.Format.dateRenderer('m/d/Y'), dataIndex: 'fe_registro'},
+				{header: 'Monto Modificado', width: 90, sortable: true, dataIndex: 'nu_modificacion'},
+				{header: 'Moneda', width: 90, sortable: true, dataIndex: 'tx_moneda'},
+				{header: 'Monto Total', width: 90, sortable: true, dataIndex: 'monto_total'},
+				{header: 'Descripci&oacute;n', width: 95, sortable: true, dataIndex: 'tx_descripcion1'}	
+			],
+});
+ //---------PANEL MODIFICACIONES.....
+ var ModificacionesFom = new Ext.FormPanel({ 
+       id:'ModificacionesFom',
+	   frame:true,		
+	   bodyStyle: 'padding:5px 5px 0',
+	   height: 615,	
+	   autoScroll: true, 
+	   items:[{
+			  layout: 'column',
+	    },   
+        {
+               xtype:'fieldset',
+               title: 'Modificaciones',
+               collapsible: true,
+               autoHeight:true,
+               collapsed: true,
+               layout: 'column',
+               labelAlign: 'top',
+               //allowBlank:false 
+        items: [{
+               columnWidth: .5,
+			   layout: 'form', 
+        items: [{fieldLabel: 'Fecha de Inicio', id:'fe_inicio1', xtype: 'datefield', anchor: '90%'}] //ojo desactivar este campo. solo mostrar  
+		    },
+		    {
+			   columnWidth: .5,
+			   layout: 'form', 
+         items: [{ fieldLabel: 'Fecha de Culminaci&oacute;n', id:'fe_culminacion1', xtype: 'datefield', anchor: '90%'}]   
+            },
+            {
+			   columnWidth: .6,
+			   layout: 'form',
+			   //labelAlign: 'top',
+         items: [GetComboTipo('co_modificacion','co_tipo_modificacion','Tipo de Modificaci&oacute;n',2)]
+            },
+             
+		    {
+			   columnWidth: .5,
+			   layout: 'form', 
+         items: [{fieldLabel: 'Fecha a Modificada', id:'fe_registro', xtype: 'datefield', anchor: '90%'}]
+            },
+            {
+			   columnWidth: .5,
+			   layout: 'form', 
+         items: [{fieldLabel: 'Tiempo de Ejecuci&oacute;n', id:'nu_tiempo_e', xtype: 'datefield', anchor: '90%'}]
+            },
+            
+            {
+				columnWidth: .5,
+				layout:'form', 
+         items: [{fieldLabel: 'Monto a Modificar', id:'nu_monto_modificado',  xtype: 'textfield', anchor: '90%'}]
+		
+			}, 
+			 {  columnWidth: .5,
+			   layout: 'form',
+		items: [GetCombo('co_moneda','co_moneda','Tipo de Moneda ')] 
+			},   
+            {
+			   columnWidth: .5,
+			   layout: 'form',
+         items: [{fieldLabel: 'Monto Total', id:'monto_total', xtype: 'textfield', anchor: '90%'}]//ojo preguntar no esta en la base de dato
+            },
+            {
+			   columnWidth: .5,
+			   layout: 'form',
+         items: [{fieldLabel: 'Dias de Pr&oacute;rroga', id:'nu_dias_prorrogas', xtype: 'textfield', anchor: '90%'}] //ojo ver si esta en la base de datos
+            }, 
+            {
+			   columnWidth: 1.1,
+			   layout: 'form',
+         items: [{fieldLabel: 'Descripci&oacute;n', id:'tx_descripcion1', xtype: 'textarea',allowBlank: false, anchor: '90%'}]//ojo dos campos iguales en tablas diferentes a la hora de colocar los id
+            } 
+		     ]
+	 },
+	  {
+               xtype:'fieldset',
+               title: 'Cambios en Montos',
+               collapsible: true,
+               autoHeight:true,
+               collapsed: true,
+               layout: 'column',
+               labelAlign: 'top',
+               //allowBlank:false 
+        items: [
+		    {
+			   columnWidth: .5,
+			   layout: 'form',
+         items: [{fieldLabel: 'Monto', id:'monto_totall', xtype: 'textfield', anchor: '90%'}]//ojo preguntar no esta en la base de dato
+            },
+		    {  columnWidth: .5,
+			   layout: 'form',
+		items: [GetCombo('co_monedaa','co_moneda','Tipo de Moneda ')] 
+			}, 
+			{
+               columnWidth: .5,
+			   layout: 'form', 
+        items: [{fieldLabel: 'Contraprestaciones', id:'fe_inicio1l', xtype: 'textfield', anchor: '90%'}]
+		    },   	
+      ]
+     }, 
+     {
+      xtype:'fieldset',
+      title: 'Compromiso de Responsabilidad Social',
+      collapsible: true,
+      collapsed: true,
+      autoHeight:true,
+      layout: 'column',
+      labelAlign: 'top', 
+     // disabled:true,      
+        items: [{
+               columnWidth: .5,
+			   layout: 'form', 
+			   //disabled:true,
+        items: [{fieldLabel: 'Aporte al Fondo Social', id:'nu_aporte', xtype: 'spinnerfield', anchor: '90%'}]   
+		    },
+		    {
+			   columnWidth: .5,
+			   layout: 'form',
+         items: [{fieldLabel: 'Desarrollo de UPC', id:'nu_desarrollo', xtype: 'spinnerfield', anchor: '90%'}]    
+            },
+            
+          ]
+ },
+ 
+    GridModificaciones, 
+  ] 
+  
+ });  
+ /*var store_unidades = new Ext.data.JsonStore({
+	//url:
+	totalProperty: 'total',
+	root: 'Resultados',
+	idProperty: 'co_unidad',
+	baseParams:{accion:'refrescar'},
+	fields: [
+			{name: 'co_unidad'},
+			{name: 'tx_unidad'},
+			{name: 'fe_entrega'},
+			{name: 'fe_recibido'},
+			{name: 'tx_detalle'}
+			]
+});*/
+//-----------------------------------------------------V FORMULARIO VARIACIONES NO PREVISTA------------------------------------------------------//
+//------- Store de las VARIACIONES NO PREVISTA.....
+var store_Variaciones = new Ext.data.JsonStore
+({
+	id:'store_Variaciones',
+	 writer: writer,
+	 root: 'Resultados',
+	 idProperty: 'VARIACIONES',
+fields: [
+		   {name: 'co_tipo_modificacion3', type: 'float'},
+		   {name: 'nu_monto_modificacion3', type: 'float'},
+		   {name: 'nu_valor3', type: 'float'},
+		   {name: 'tx_descripcion3', type: 'float'}
+		]
+});
+//------- Grid de las VARIACIONES NO PREVISTA.....
+var GridVariaciones = new Ext.grid.GridPanel({
+    store: store_Variaciones, 
+    title: 'Variaciones',		
+	stripeRows: true,
+    //width:410,
+    height: 175,
+    stateful: true,
+    stateId: 'GridVariaciones', 
+	columns:[  
+				new Ext.grid.RowNumberer(),
+				{header: 'Tipo de Variaci&oacute;n', width: 137, sortable: true, dataIndex: 'co_tipo_modificacion3'},
+				{header: 'Monto Variaci&oacute;n', width: 125, sortable: true, dataIndex: 'nu_monto_modificacion3'},
+				{header: 'Monto', width: 125, sortable: true, dataIndex: 'nu_valor3'},
+				{header: 'Descripci&oacute;n', width: 137, sortable: true, dataIndex: 'tx_descripcion3'}
+			],
+ });
+ //---------PANEL VARIACIONES NO PREVISTA.....
+var VariacionesFom = new Ext.FormPanel({
+    
+        id:'VariacionesFom',
+        //labelAlign: 'top',
+		frame:true,		
+	    bodyStyle: 'padding:5px 5px 0',
+	    //width: 485,
+	    height: 615,
+	    
+	    items:[{
+			  xtype:'fieldset',
+			  title: 'Valuaciones',
+			  collapsible: true,
+			  autoHeight:true,
+			  //defaults: {width: 210},
+			  labelAlign: 'top',
+			  layout: 'column',
+			  
+items: [{  
+			   columnWidth: .6,
+			   layout: 'form',
+			   labelAlign: 'top',
+         items: [GetComboTipo('co_variaciones','co_tipo_modificacion','Tipo de Variaci&oacute;n',4)]
+            },
+            {
+			   columnWidth: .5,
+			   layout: 'form',
+         items: [{fieldLabel: 'Monto Variaci&oacute;n', id:'nu_monto_modificacion3', xtype: 'textfield', anchor: '90%'}]
+            },
+            {
+			   columnWidth: .5,
+			   layout: 'form',
+         items: [{fieldLabel: 'Monto total', id:'nu_valor3', xtype: 'textfield', anchor: '90%'}]
+            },
+            {
+			   columnWidth: 1.1,
+			   layout: 'form',
+         items: [{fieldLabel: 'Descripci&oacute;n', id:'tx_descripcion3', xtype: 'textarea', anchor: '90%'}]//ojo
+            } 
+	   ]},
+  GridVariaciones,                		 
+	        ]
+ }); 
+ //------------------------------------------------------X FORMULARIO PARALIZACIONES --------------------------------------------------------------------//	
+//------- Store Paralizaciones.....
+var store_paralizaciones = new Ext.data.JsonStore
+({
+	id:'store_paralizaciones',
+	writer: writer,
+	root: 'Resultados',
+	idProperty: 'store_',
+fields: [
+		   {name: 'co_tipo_modificacion5', type: 'float'},
+		   {name: 'fe_registro5', type: 'date', dateFormat: 'm/d/y'},
+		   {name: 'tx_desctipcion5', type: 'float'}  
+		]
+});
+//------- Grid Paralizacion.....
+var GridParalizaciones = new Ext.grid.GridPanel
+({
+    store: store_paralizaciones,
+    title:'paralizaciones',
+	stripeRows: true,
+    //width:410,
+    height: 155,
+    stateful: true,
+    stateId: 'GridParalizaciones',  
+	columns:[  
+				new Ext.grid.RowNumberer(),
+				{header: 'Fecha de paralizacion', width: 150, sortable: true, dataIndex: 'co_tipo_modificacion5'},
+				{header: 'Fecha', width: 100, sortable: true, renderer: Ext.util.Format.dateRenderer('m/d/Y'), dataIndex: 'fe_registro5'},
+				{header: 'Desctipci&oacute;n', width: 137, sortable: true, dataIndex: 'tx_desctipcion5'}
+			],
+});
+//---------PANEL PARALIZACION
+var ParalizacionesFom = new Ext.FormPanel
+({   
+        id:'ParalizacionesFom',
+		frame:true,		
+	    bodyStyle: 'padding:5px 5px 0',
+	    height: 615,
+	    
+	    items:[{
+			  layout: 'column',  
+			},
+			{
+			  xtype:'fieldset',
+			  title: 'Cierre',
+			  collapsible: true,
+			  autoHeight:true,
+			  labelAlign: 'top',
+			  layout: 'column',
+					  
+				items:[{
+					   columnWidth: .6,
+					   layout: 'form',
+					   labelAlign: 'top',
+				 items: [GetComboTipo('co_paralizaciones','co_tipo_modificacion','Fecha de paralizacion',3)]
+                    },
+					{
+					   columnWidth: .5,
+					   layout: 'form',
+				 items: [{fieldLabel: 'Fecha', id:'fe_registro5', xtype: 'datefield', anchor: '90%'}]    
+					},		
+					{
+					   columnWidth: 1,
+					   layout: 'form',
+				 items: [{fieldLabel: 'Desctipci&oacute;n', id:'tx_desctipcion5', xtype: 'textarea', anchor: '100%'}]
+					},	
+				 ]
+			 },
+             GridParalizaciones,
+	      ]	
+ });           
+ //-----------------------------------------------------VII FORMULARIO FIANZAS-------------------------------------------------------------------//
+//------- Store de las FIANZAS.....
+var store_Fianzas = new Ext.data.JsonStore
+({
+	id:'store_Fianzas',
+	 writer: writer,
+	 root: 'Resultados',
+	 idProperty: 'Fianzas',
+fields: [
+		   {name: 'co_tipo_fianza', type: 'float'},
+		   {name: 'nu_fianza', type: 'float'},
+		   {name: 'fe_tipo_fianza_registro', type: 'date', dateFormat: 'm/d/y'},
+		   {name: 'fe_tipo_fianza_vencimiento', type: 'date', dateFormat: 'm/d/y'},
+		   {name: 'tx_descripcion6', type: 'float'}
+		]
+});
+//------- Grid de las FIANZAS.....
+
+var GridFianzas = new Ext.grid.GridPanel({
+    store: store_Fianzas, 
+    title: 'Fianzas',		
+	stripeRows: true,
+    //width:410,
+    height: 200,
+    stateful: true,
+    stateId: 'GridFianzas', 
+	columns:[  
+				new Ext.grid.RowNumberer(),
+				
+				{header: 'Tipo de Fianza', width: 125, dataIndex: 'co_tipo_modificacion'},
+				{header: 'Monto Variaci&oacute;n', width: 125, sortable: true, dataIndex: 'nu_fianza'},
+				{header: 'Fecha de Registro', width: 137, sortable: true,renderer: Ext.util.Format.dateRenderer('m/d/Y'), dataIndex: 'fe_tipo_fianza_registro'},
+				{header: 'Fecha de Vencimiento', width: 137, sortable: true, renderer: Ext.util.Format.dateRenderer('m/d/Y'), dataIndex: 'fe_tipo_fianza_vencimiento'},
+				{header: 'Descripci&oacute;n', width: 125, sortable: true,  dataIndex: 'tx_descripcion6'},
+				 
+			],
+ });
+ 
+ //---------PANEL FIANZAS.....
+var FianzaFom = new Ext.FormPanel({
+    
+        id:'FianzaFom',
+        //labelAlign: 'top',
+		frame:true,		
+	    bodyStyle: 'padding:5px 5px 0',
+	    //width: 485,
+	    height: 615,
+	    
+	    items:[{
+			  xtype:'fieldset',
+			  title: 'Fianza',
+			  collapsible: true,
+			  autoHeight:true,
+			  //defaults: {width: 210},
+			  labelAlign: 'top',
+			  layout: 'column',
+			  
+items: [{  
+			   columnWidth: .6,
+			   layout: 'form',
+			   labelAlign: 'top',
+         items: [GetComboTipo('co_fianza','co_tipo_modificacion','Tipo de Fianza',1)]
+            },
+            {
+			   columnWidth: .5,
+			   layout: 'form',
+         items: [{fieldLabel: 'Monto', id:'nu_fianza', xtype: 'textfield', anchor: '90%'}]
+            },
+             {
+			   columnWidth: .5,
+			   layout: 'form',
+         items: [{fieldLabel: 'Nuevo Monto', id:'nu_fianzaa', xtype: 'textfield', anchor: '90%'}]
+            },
+            {
+			   columnWidth: .5,
+			   layout: 'form',
+         items: [{fieldLabel: 'Fecha de Registro', id:'fe_tipo_fianza_registro', xtype: 'datefield', anchor: '90%'}]
+            },
+            {
+			   columnWidth: .5,
+			   layout: 'form',
+         items: [{fieldLabel: 'Fecha de Vencimiento', id:'fe_tipo_fianza_vencimiento', xtype: 'datefield', anchor: '90%'}]
+            },
+            {
+			   columnWidth: 1.1,
+			   layout: 'form',
+         items: [{fieldLabel: 'Descripci&oacute;n', id:'tx_descripcion6', xtype: 'textarea', anchor: '90%'}]
+            }  
+	   ]},
+  GridFianzas,                		 
+	        ]
+ });      
+//------------------------------------------------------VIII FORMULARIO CONTROL DEL CONTRATO-----------------------------------------------------//
+var store_control = new Ext.data.JsonStore({
+	id:'store_control',
+	writer: writer,
+	url:'php/AdministracionInterfaz.php',
+	root: 'Resultados',
+	idProperty: 'control',
+	baseParams:{accion:'refrescar'},
+	fields: [
+			{name: 'co_unidades', type: 'string'},
+			{name: 'tx_unidades', type: 'string'},
+			{name: 'fe_entrega', type: 'string', dateFormat: 'Y-m-d'},
+			{name: 'fe_recibido', type: 'string', dateFormat: 'Y-d-m'},
+			{name: 'tx_detallees', type: 'string'}
+			
+			]
+
+});
+
+var ComboApoyo = GetComboGrid('unidadess','co_unidades','')
+ComboApoyo.on('select', function(combo,record,index)
+	{
+		//alert(ComboApoyo.getRawValue());
+	});		
+//store_control.load();
+//------- Grid Unidades de Apoyo.....
+var grid_control = new Ext.grid.EditorGridPanel({
+		store: store_control,
+		id:'grid_control',
+		sm: new Ext.grid.RowSelectionModel(),
+		//width:415,
+        height: 420,
+        region:'center',
+        frame:true,
+        clicksToEdit: 1,
+	 
+	columns:[
+				new Ext.grid.RowNumberer(),
+				{header: 'Unidades de Apoyo', dataIndex: 'tx_unidades', width: 150, editor: ComboApoyo },
+				{header: 'Fecha de Entrega', dataIndex: 'fe_entrega', width: 110, renderer: Ext.util.Format.dateRenderer('d-m-Y'), editor: new Ext.form.DateField({allowBlank: false})},
+				{header: 'Fecha de Recibido', dataIndex: 'fe_recibido', width: 110, renderer: Ext.util.Format.dateRenderer('d-m-Y'), editor: new Ext.form.DateField({allowBlank: false})},
+				{header: 'Detalle', dataIndex: 'tx_detallees', width: 210, editor: new Ext.form.TextField({})}
+			],
+	tbar: [{
+			text: 'Nuevo ',
+            iconCls: 'agregar',
+            handler: function(){
+								var Nuevo = grid_control.getStore().recordType;
+								var N = new Nuevo({
+													tx_unidades:'',
+													fe_entrega: '',
+													fe_recibido:'',
+													tx_detallees:''});
+								grid_control.stopEditing();
+								store_control.insert(0, N);
+								grid_control.startEditing(0, 0);
+							  }
+		   },'-',
+		   {
+			text: 'Eliminar',
+            iconCls: 'icon-delete',
+            handler: function () {
+						var rec = grid_control.getSelectionModel().getSelected();
+						if (!rec) {
+							return false;
+						}
+						grid_control.store.remove(rec);
+					}
+		   },]	
+});
+//---------PANEL Unidades de Apoyo
+var controlFom = new Ext.FormPanel
+({
+	id:'controlFom',
+	//name:'controlFom',
+	frame:true,	
+	bodyStyle: 'padding:5px 5px 0',
+	layout: 'form',
+	labelAlign: 'top',
+	height: 433,
+	layout: 'column',
+	items:[{
+			
+		  },
+		  grid_control,
+		 ]
+});
+//------------------------------------------------------IX FORMULARIO ANTICIPO --------------------------------------------------------------------//	
+//------- Store ANTICIPO.....
+var store_Anticipo = new Ext.data.JsonStore
+({
+	id:'store_Anticipo',
+	writer: writer,
+	root: 'Resultados',
+	idProperty: 'Anticipo',
+fields: [
+		   {name: 'nu_anticipo', type: 'float'},
+		   {name: 'nu_anticipo_otorgado', type: 'date', dateFormat: 'm/d/y'},
+		   {name: 'nu_monto_pagado', type: 'float'}, 
+		   {name: 'nu_moneda', type: 'float'},
+		   {name: 'nu_monto_recobrad', type: 'float'}, 
+		   {name: 'nu_monto_pendiente', type: 'float'} 
+		]
+});
+//------- Grid ANTICIPO.....
+var GridAnticipo = new Ext.grid.GridPanel
+({
+    store: store_Anticipo,
+    title:'Anticipo',
+	stripeRows: true,
+    //width:410,
+    height: 200,
+    stateful: true,
+    stateId: 'GridAnticipo',  
+	columns:[  
+				new Ext.grid.RowNumberer(),
+				{header: '% del Anticipo', width: 50, sortable: true, dataIndex: 'nu_anticipo'},
+				{header: 'N de Anticipo Otorgado', width: 50, sortable: true, dataIndex: 'nu_anticipo_otorgado'},
+				{header: 'Monto Pagado', width: 137, sortable: true, dataIndex: 'nu_monto_pagado'},
+				{header: 'Tipo de Moneda', width: 90, sortable: true, dataIndex: 'nu_moneda'},
+				{header: 'Monto Recobrado', width: 137, sortable: true, dataIndex: 'nu_monto_recobrado'},
+				{header: 'Monto Pendiente', width: 137, sortable: true, dataIndex: 'nu_monto_pendiente'}
+			],
+});
+//---------PANEL ANTICIPO
+var AnticipoFom = new Ext.FormPanel
+({   
+        id:'AnticipoFom',
+		frame:true,		
+	    bodyStyle: 'padding:5px 5px 0',
+	    height: 615,
+	    
+	items:[{
+			   xtype:'fieldset',
+			   title: 'Anticipo',
+			   collapsible: true,
+			   autoHeight:true,
+			   collapsed: true,
+			   layout: 'column',
+			   labelAlign: 'top',
+			   labelWidth: 70,
+			   
+				items:[{
+					   columnWidth: .5,
+					   layout: 'form',
+				  items: [{fieldLabel: '% del Anticipo', id:'b', xtype: 'spinnerfield', anchor: '90%'}] 
+                    },
+					{
+					   columnWidth: .5,
+					   layout: 'form',
+					   
+				 items: [{fieldLabel: 'N&deg; de Anticipo Otorgado', id:'a', xtype: 'spinnerfield', anchor: '90%'}]    
+					},		
+					{
+					   columnWidth: .5,
+					   layout: 'form',
+				 items: [{fieldLabel: 'Monto Pagado por Anticipo', id:'anticipo_monto', xtype: 'textfield', anchor: '90%'}]
+					},
+					{
+					   columnWidth: .5,
+					   layout: 'form',
+				 items: [{fieldLabel: 'Monto Pendiente Recobrado por Anticipo', id:'anticipo_pendiente', xtype: 'textfield', anchor: '90%'}]
+					},
+					{
+					   columnWidth: .5,
+					   layout: 'form',
+				 items: [{fieldLabel: 'Monto Recobrado por Anticipo', id:'anticipo_recobrado', xtype: 'textfield', anchor: '90%'}]
+					},
+					
+					{  columnWidth: .5,
+						layout: 'form',
+				 items: [GetCombo('co_monedaaa','co_moneda','Tipo de Moneda ')] 
+					}, 		
+				 ]
+			 },
+             GridAnticipo,
+	      ]	
+ });      
+//------------------------------------------------------X FORMULARIO CIERRE --------------------------------------------------------------------//	
+//------- Store CIERRE.....
+var store_Cierre = new Ext.data.JsonStore
+({
+	id:'store_Cierre',
+	writer: writer,
+	root: 'Resultados',
+	idProperty: 'fe',
+fields: [
+		   {name: 'co_tipo_modificacion4', type: 'float'},
+		   {name: 'fe_registro4', type: 'date', dateFormat: 'm/d/y'},
+		   {name: 'tx_desctipcion4', type: 'float'}  
+		]
+});
+//------- Grid CIERRE.....
+var GridCierre = new Ext.grid.GridPanel
+({
+    store: store_Cierre,
+    title:'Cierre',
+	stripeRows: true,
+    //width:410,
+    height: 200,
+    stateful: true,
+    stateId: 'GridCierre',  
+	columns:[  
+				new Ext.grid.RowNumberer(),
+				{id:'tip',header: 'Tipo de Acta de Cierre', width: 150, sortable: true, dataIndex: 'co_tipo_modificacion4'},
+				{header: 'Fecha Firma de Acta', width: 100, sortable: true, renderer: Ext.util.Format.dateRenderer('m/d/Y'), dataIndex: 'fe_registro4'},
+				{header: 'Desctipci&oacute;n', width: 137, sortable: true, dataIndex: 'tx_desctipcion4'}
+			],
+});
+//---------PANEL CIERRE
+var CierreFom = new Ext.FormPanel
+({   
+        id:'CierreFom',
+		frame:true,		
+	    bodyStyle: 'padding:5px 5px 0',
+	    height: 615,
+	    
+	    items:[{
+			  layout: 'column',  
+			},
+			{
+			  xtype:'fieldset',
+			  title: 'Cierre',
+			  collapsible: true,
+			  autoHeight:true,
+			  labelAlign: 'top',
+			  layout: 'column',
+					  
+				items:[{
+					   columnWidth: .6,
+					   layout: 'form',
+					   labelAlign: 'top',
+				 items: [GetComboTipo('co_cierre','co_tipo_modificacion','Tipo de Acta',5)]
+                    },
+					{
+					   columnWidth: .5,
+					   layout: 'form',
+				 items: [{fieldLabel: 'Fecha Firma de Acta', id:'fe_registro4', xtype: 'datefield', anchor: '90%'}]    
+					},		
+					{
+					   columnWidth: 1,
+					   layout: 'form',
+				 items: [{fieldLabel: 'Desctipci&oacute;n', id:'tx_desctipcion4', xtype: 'textarea', anchor: '100%'}]
+					},	
+				 ]
+			 },
+             GridCierre,
+	      ]	
+ });      
+//------------------------------------------------------WINDOW ADMINISTRACION---------------------------------------------------------------//
+var win;
+var button = Ext.get('show-btn');
+// create the window on the first click and reuse on subsequent clicks
+ if(!win)
+ {
+    win = new Ext.Window({					
+		id:'win',
+		modal: true,					
+		closable: true,
+		layout:'fit',
+		width:450,
+		height:530,
+		closeAction:'hide',
+		plain: true,
+
+			items: new Ext.TabPanel
+			({
+				activeTab: 0,
+				plain:true,
+				width:100,
+				height: 100,
+				enableTabScroll: true,
+				minimizable: true,					
+				closable: true,
+									
+			 	items:
+					  [
+						{title: 'Inicio del Contrato', items: InicioFom},
+						{title: 'Datos General del Contrato', items: DatosFom},
+						{title: 'Anticipo', items: AnticipoFom},
+						{title: 'Fianzas', items: FianzaFom},
+						{title: 'Valuaciones', items: ValuacionesFom},
+						{title: 'Modificaciones', items: ModificacionesFom},
+						{title: 'Paralizaciones', items: ParalizacionesFom},
+						{title: 'Variaciones', items: VariacionesFom},
+						{title: 'Cierre', items: CierreFom},
+						{title: 'Control del Contrato', items: controlFom}
+					  ], 
+					 		  
+			}), 
+			/*listeners: {                           
+							  beforehide: function(win){
+								 Ext.Msg.show({
+									iconCls:'Error',
+									title:'ERROR',
+									msg: 'Estas cerrando la ventana sin guardar los cambios. Desea salir sin guardar?',
+									buttons: Ext.Msg.YESNO,
+									fn: function (btn){
+									   if(btn=='yes') {
+										  win.suspendEvents();
+										  // Al estar suspendidos los eventos este mismo evento no vuelve a saltar dentro de si mismo.  
+										  win.hide(); 
+										  win.resumeEvents();
+									   }
+									},
+									animEl: 'elId'
+							  });
+							  // Esto evita que se produzca la acción de cerrarse la ventana.
+							  return false;              
+							 }
+						   },*/
+
+			 buttons:[{
+						 text:'Guardar',
+						 id: 'guardar',
+						 iconCls:'guardar',
+						 /*enableToggle: true, 
+						 handler: function()
+						 { 
+							if(InicioFom.getForm().isValid()){
+																InicioFom.getForm().submit
+																({
+																url: 'AdministracionInterfaz.php',
+																success: function(){}
+																});
+																
+															  }
+															  accion:'modificar';						  
+								
+						},*/
+						//disabled:true,
+								handler: function()
+								{
+									Ext.MessageBox.confirm("[ SISCO ]","Deseas Guardar este Registro ?", function(btn)
+										 {
+											 if(btn == 'yes')
+													accion='insertar';
+												else 
+													accion='modificar';
+													//grid.store.reload()
+													 
+														grid.store.reload
+														({  
+															//method: 'post',  
+															/*params:
+															{ 
+																Id:Id,
+																
+																Cedula:Ext.getCmp('InicioFom').getValue(), 
+																Nombre:Ext.getCmp('Nombre').getValue(),
+																Apellido:Ext.getCmp('Apellido').getValue(),
+																Fecha:Ext.getCmp('Fecha').getRawValue(),
+																Sexo:Ext.getCmp('Sexo').getValue(),}
+																accion: accion, */
+																
+														
+													});
+											nuevo=0;
+													 
+										});
+								 }  
+					},
+					{
+						text: 'Cerrar',
+						id: 'cerrar',
+						iconCls:'Cerrar', 
+						handler: function()
+							   {
+								 win.hide();
+							   }
+					},
+				],
+	
+    });
+
+};
+//------------------------------------------------------TABS ADMINISTRACION-----------------------------------------------------------------//
+var administracionTabs = new Ext.TabPanel
+({
+    activeTab: 0,
+    plain:true,
+    width:1082,
+	height: 0,
+    items:[
+			{
+				title: 'Pendientes',
+				listeners: 	{
+					'activate': function (panel) 
+					{
+						store_administracion.reload({params:{tab:'pendientes'}});
+					}
+				}
+			},
+			{
+				title: 'En Procesos',
+				listeners: 	{
+					'activate': function (panel) 
+					{
+						store_administracion.reload({params:{tab:'en_proceso'}});
+					}
+				}
+			},
+			{
+				title: 'Cerrados',
+				listeners: 	{
+					'activate': function (panel) 
+					{
+						store_administracion.reload({params:{tab:'cerrado'}});
+					}
+				}
+			}
+          ]      
+});
+var simple = new Ext.FormPanel ({items: [administracionTabs,grid]});

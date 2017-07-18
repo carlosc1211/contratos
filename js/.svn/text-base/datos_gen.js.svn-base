@@ -1,0 +1,341 @@
+var Employee = Ext.data.Record.create([{
+        name: 'name',
+        type: 'string'
+    }, {
+        name: 'email',
+        type: 'string'
+    }, {
+        name: 'start',
+        type: 'date',
+        dateFormat: 'n/j/Y'
+    },{
+        name: 'salary',
+        type: 'float'
+    },{
+        name: 'active',
+        type: 'bool'
+    }]);
+     var genData = function(){
+        var data = [];
+        var s = new Date(2007, 0, 1);
+        var now = new Date(), i = -1;
+        while(s.getTime() < now.getTime()){
+            var ecount = 0;
+            for(var i = 0; i < ecount; i++){
+                var name = Ext.ux.generateName();
+                data.push({
+                    start : 0,
+                    name : name,
+                    email: name.toLowerCase().replace(' ', '.') + '@exttest.com',
+                    active: true,
+                    salary: 0
+                });
+            }
+            s = s.add(Date.MONTH, 1);
+        }
+        return data;
+    }
+var editor = new Ext.ux.grid.RowEditor({
+        saveText: 'Update'
+    });
+    var store = new Ext.data.GroupingStore({
+        reader: new Ext.data.JsonReader({fields: Employee}),
+        data: genData(),
+        sortInfo: {field: 'start', direction: 'ASC'}
+    });
+var gridPersonalObra = new Ext.grid.GridPanel({
+		title:'Personal Asociado',
+        store: store,x:10,y:220,
+        anchor: '98%',height:150,
+        region:'center',
+        margins: '0 5 5 5',
+        autoExpandColumn: 'name',
+        plugins: [editor],
+        view: new Ext.grid.GroupingView({
+            markDirty: false
+        }),
+        tbar: [{
+            iconCls: 'icon-user-add',
+            text: 'Agregar',
+            handler: function(){
+                var e = new Employee({
+                    name: 'New Guy',
+                    email: 'new@exttest.com',
+                    start: (new Date()).clearTime(),
+                    salary: 50000,
+                    active: true
+                });
+                editor.stopEditing();
+                store.insert(0, e);
+                grid.getView().refresh();
+                grid.getSelectionModel().selectRow(0);
+                editor.startEditing(0);
+            }
+        },{
+            ref: '../removeBtn',
+            iconCls: 'icon-user-delete',
+            text: 'Eliminar',
+            //disabled: true,
+            handler: function(){
+                editor.stopEditing();
+                var s = grid.getSelectionModel().getSelections();
+                for(var i = 0, r; r = s[i]; i++){
+                    store.remove(r);
+                }
+            }
+        }],
+
+        columns: [
+        new Ext.grid.RowNumberer(),
+        {
+            header: 'Rol',
+            dataIndex: 'email',
+            width: 150,
+            sortable: true,
+            editor: {
+                xtype: 'textfield',
+                allowBlank: false,
+                vtype: 'email'
+            }
+        },{
+            id: 'name',
+            header: 'Nombre',
+            dataIndex: 'name',
+            width: 220,
+            sortable: true,
+            editor: {
+                xtype: 'textfield',
+                allowBlank: false
+            }
+        },{
+            id: 'name',
+            header: 'Organizaci&oacute;n',
+            dataIndex: 'name',
+            width: 220,
+            sortable: true,
+            editor: {
+                xtype: 'textfield',
+                allowBlank: false
+            }
+        },{
+            id: 'name',
+            header: 'Tel&eacute;fono',
+            dataIndex: 'name',
+            width: 220,
+            sortable: true,
+            editor: {
+                xtype: 'textfield',
+                allowBlank: false
+            }
+        }]
+    });
+var gridFianzasObra = new Ext.grid.GridPanel({
+		title:'Fianzas Consignadas',
+        store: store,x:10,y:400,
+        anchor: '98%',height:150,
+        region:'center',
+        margins: '0 5 5 5',
+        autoExpandColumn: 'name',
+        plugins: [editor],
+        view: new Ext.grid.GroupingView({
+            markDirty: false
+        }),
+        tbar: [{
+            iconCls: 'icon-add',
+            text: 'Agregar',
+            handler: function(){
+                var e = new Employee({
+                    name: 'New Guy',
+                    email: 'new@exttest.com',
+                    start: (new Date()).clearTime(),
+                    salary: 50000,
+                    active: true
+                });
+                editor.stopEditing();
+                store.insert(0, e);
+                grid.getView().refresh();
+                grid.getSelectionModel().selectRow(0);
+                editor.startEditing(0);
+            }
+        },{
+            ref: '../removeBtn',
+            iconCls: 'icon-delete',
+            text: 'Eliminar',
+            //disabled: true,
+            handler: function(){
+                editor.stopEditing();
+                var s = grid.getSelectionModel().getSelections();
+                for(var i = 0, r; r = s[i]; i++){
+                    store.remove(r);
+                }
+            }
+        }],
+
+        columns: [
+        new Ext.grid.RowNumberer(),
+        {
+            id: 'name',
+            header: 'Fianza',
+            dataIndex: 'name',
+            width: 220,
+            sortable: true,
+            editor: {
+                xtype: 'textfield',
+                allowBlank: false
+            }
+        },{
+            header: 'Monto (Bs)',
+            dataIndex: 'email',
+            width: 150,
+            sortable: true,
+            editor: {
+                xtype: 'textfield',
+                allowBlank: false,
+                vtype: 'email'
+            }
+        },{
+            header: 'Vigencia (dias)',
+            dataIndex: 'email',
+            width: 150,
+            sortable: true,
+            editor: {
+                xtype: 'textfield',
+                allowBlank: false,
+                vtype: 'email'
+            }
+        },{
+            header: 'Observaciones',
+            dataIndex: 'email',
+            width: 150,
+            sortable: true,
+            editor: {
+                xtype: 'textfield',
+                allowBlank: false,
+                vtype: 'email'
+            }
+        }]
+    });
+    
+    var gridObservacionObra = new Ext.grid.GridPanel({
+		title:'Observaciones',
+        store: store,x:10,y:580,
+        anchor: '98%',height:150,
+        region:'center',
+        margins: '0 5 5 5',
+        autoExpandColumn: 'name',
+        plugins: [editor],
+        view: new Ext.grid.GroupingView({
+            markDirty: false
+        }),
+        tbar: [{
+            iconCls: 'icon-add',
+            text: 'Agregar',
+            handler: function(){
+                var e = new Employee({
+                    name: 'New Guy',
+                    email: 'new@exttest.com',
+                    start: (new Date()).clearTime(),
+                    salary: 50000,
+                    active: true
+                });
+                editor.stopEditing();
+                store.insert(0, e);
+                grid.getView().refresh();
+                grid.getSelectionModel().selectRow(0);
+                editor.startEditing(0);
+            }
+        },{
+            ref: '../removeBtn',
+            iconCls: 'icon-delete',
+            text: 'Eliminar',
+            //disabled: true,
+            handler: function(){
+                editor.stopEditing();
+                var s = grid.getSelectionModel().getSelections();
+                for(var i = 0, r; r = s[i]; i++){
+                    store.remove(r);
+                }
+            }
+        }],
+
+        columns: [
+        new Ext.grid.RowNumberer(),
+        {
+            id: 'name',
+            header: 'Fecha y Hora',
+            dataIndex: 'name',
+            width: 220,
+            sortable: true,
+            editor: {
+                xtype: 'textfield',
+                allowBlank: false
+            }
+        },{
+            header: 'Descripci&oacute;n',
+            dataIndex: 'email',
+            width: 150,
+            sortable: true,
+            editor: {
+                xtype: 'textfield',
+                allowBlank: false,
+                vtype: 'email'
+            }
+        }]
+    });
+var datos_varios = new Ext.grid.PropertyGrid({
+	width: 300,
+    height: window.innerHeight-(window.innerHeight*0.08),
+    closable: true,
+    source: {
+		"Fecha Firma Contrato": new Date(Date.parse('10/15/2006')),
+        "Monto de Contrato": 0,
+        "Anticipo (Bs)": 0,
+        "Anticipo (%)": 0,
+        "Fecha Pago Anticipo": new Date(Date.parse('10/15/2006')),
+        "Mecanismo de Ajuste": true,
+        "Fecha Inicio Planificada": new Date(Date.parse('10/15/2006')),
+        "Fecha Inicio Estimada": new Date(Date.parse('10/15/2006')),
+        "Fecha Inicio Real": new Date(Date.parse('10/15/2006')),
+        "Fecha Fin Planificada": new Date(Date.parse('10/15/2006')),
+        "Fecha Fin Estimada": new Date(Date.parse('10/15/2006')),
+        "Fecha Fin Real": new Date(Date.parse('10/15/2006'))
+    }
+});
+var panel_der = new Ext.Panel({
+	title: 'Informaci&oacute;n General',
+	region: 'center',
+	layout:'absolute',
+	items:[{
+		xtype:'label',
+		x:10,y:10,
+		text:'Nombre del Contrato:'
+	},{
+		xtype: 'textfield',
+		x:10,y:30, anchor: '98%'
+	},{
+		xtype:'label',
+		x:10,y:60,
+		text:'Empresa Contratista:'
+	},{
+		xtype: 'textfield',
+		x:10,y:80, anchor: '50%'
+	},{
+		xtype:'label',
+		x:10,y:110,
+		text:'Descripcion de la Obra:'
+	},{
+		xtype: 'textarea',
+		x:10,y:130, anchor: '98%'
+	},gridPersonalObra,gridFianzasObra,gridObservacionObra]
+});
+// Panel for the west
+var panel_izq = new Ext.Panel({
+	title: 'Informaci&oacute;n',
+    region: 'west',
+    split: true,
+    width: 280,
+    collapsible: true,
+    margins:'3 0 3 3',
+    cmargins:'3 3 3 3',
+    items:[datos_varios]
+});

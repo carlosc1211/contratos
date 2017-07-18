@@ -1,0 +1,115 @@
+ <?php
+	session_start();
+	require_once 'AdministracionClase.php';	
+	require_once 'EmpresaClase.php';
+	require_once 'EmpresaProcesoClase.php';
+	$objAdministracion = new AdministracionClase();
+	$objEmpresa = new EmpresaClase();
+	$objEmpresaProceso = new EmpresaProcesoClase();
+	$accion = (isset($_POST['accion']) ? $_POST['accion'] : $_GET['accion']);
+	
+function vacio($var) {
+
+						return ($var != '');
+
+					 }
+		//print_r($_REQUEST);
+
+	$registro = array_filter($_REQUEST, "vacio");
+	$filtro = str_replace('\"','"',$_REQUEST["filter"]);
+	$filtros = json_decode($filtro, true);	
+	
+	switch ($accion) { // interruptor accion
+		
+		case 'listar':
+			$filtros = $_REQUEST["filter"];	
+			$resultado = $objAdministracion->listar($_REQUEST['campo'], $_REQUEST['tabla']);
+				//for($i=0; $i<count($resultado); $i++)
+					//$resultado[$i]['resp'] = true;	
+			
+			//print_r($tot );
+			$total = count($resultado);
+			break;
+
+		case 'refrescar':
+			
+			$filtros = $_REQUEST["filter"];	
+			$resultado = $objAdministracion->mostrar($_REQUEST['start'], $_REQUEST['limit'], $_REQUEST["sort"], $_REQUEST["dir"]);
+				//for($i=0; $i<count($resultado); $i++)
+					//$resultado[$i]['resp'] = true;	
+			$tot = $objAdministracion->contar();
+			//print_r($resultado);
+			//print_r($tot );
+			$total = $tot[0]['cuenta'];
+			//	if(is_object($objDocumento->pdo->monitor) && $objDocumento->pdo->monitor->notify_select)
+			//	$objDocumento->pdo->popNotify(); // Libera posicion reg_padre
+		
+		break;
+		
+		case 'insertar': //  caso guardar nuevo registro
+		    //echo "insertar";
+			$datosAdministracion=json_decode($registro['Resultados'],true);
+			//$registro = array_filter($registro, "vacio");
+			//print_r($datosAdministracion); //imprime el arreglo
+			
+			$datosAdministracion['co_ubicacion']=$_SESSION['co_ubicacion'];
+			$datosAdministracion['co_organizacion_usuario']=$_SESSION['co_organizacion'];
+			
+			$co_empresa = $objEmpresa->insertarEmpresa($datosAdministracion);
+			$datosAdministracion['co_empresa']=$co_empresa;
+			
+			$co_contrato = $objAdministracion->insertar($datosAdministracion);
+			$datosAdministracion['co_contrato']=$co_contrato;
+			
+			$objEmpresaProceso->insertarEmpresaContrato($datosAdministracion);
+			//echo $resulta;
+			
+			$condicion['co_contrato']=$_REQUEST['co_contrato'];
+			
+			$resultado = $objAdministracion->mostrar($_REQUEST['start'], $_REQUEST['limit'], $_REQUEST["sort"], $_REQUEST["dir"]);
+			//$resultado=$this->convertArrayKeysToUtf88($resultado1);						
+			
+			for($i=0; $i<count($resultado); $i++)
+				$resultados[$i]['resp'] =$resulta;
+				$tot = $objAdministracion->contar();
+			$total = $tot[0]['cuenta'];
+			
+		break;
+		
+		case 'modificar': //  caso guardar modificaciones de un regristro
+			
+			//echo "hola modificar";
+			$registro = $_REQUEST['Resultados'];
+			$condicion['co_contrato']=$_REQUEST['co_contrato'];
+			$registro = str_replace('\"','"',$registro);				
+			$registro = json_decode($registro, true);
+			$registro = array_filter($registro, "vacio");	
+			//print_r($registro);			
+			
+			$resulta= $objAdministracion->actualizar($registro, $condicion);
+			
+			//$filtros = $_REQUEST["filter"];
+			$resultado= $objAdministracion->mostrar($_REQUEST['start'], $_REQUEST['limit'], $_REQUEST["sort"], $_REQUEST["dir"]);
+			
+			$tot = $objAdministracion->contar();
+			$total = $tot[0]['cuenta'];
+						
+		break;
+		
+		case 'eliminar': //  caso  eliminar
+	
+			//echo "hola ";
+			$condiciones['co_contrato']=$_REQUEST['co_contrato'];
+			$resultado = $objAdministracion->eliminar($condiciones);
+			
+			$resultado = $objAdministracion->mostrar($_REQUEST['start'], $_REQUEST['limit'], $_REQUEST["sort"], $_REQUEST["dir"]);
+			$tot = $objAdministracion->contar();
+			$total = $tot[0]['cuenta'];
+		
+		break;
+
+
+	}	
+			
+			echo $resultado2='{"total":'.(($total)? $total : 0).', "Resultados":'.json_encode($resultado).'}';
+?>

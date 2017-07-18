@@ -1,0 +1,20 @@
+/*Ventana de Informacion*/
+function winInfo(mensaje){
+	Ext.Msg.show({
+		title: 'Informaci&oacute;n',
+		msg: mensaje,
+		buttons: Ext.Msg.OK,
+		animEl: 'elId',
+		icon: Ext.MessageBox.INFO,
+	});
+}
+/*Ventana de error*/
+function winError(mensaje){
+	Ext.Msg.show({
+		title: 'ERROR!',
+		msg: mensaje,
+		buttons: Ext.Msg.OK,
+		animEl: 'elId',
+		icon: Ext.MessageBox.ERROR
+	});
+}

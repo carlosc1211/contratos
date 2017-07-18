@@ -1,0 +1,102 @@
+.agenda-add {
+	background-image: url(../images/date_add.png) !important;
+}
+.agenda-update {
+	background-image: url(../images/date_edit.png) !important;
+}
+.agenda-delete {
+	background-image: url(../images/date_delete.png) !important;
+}
+.proceso-add {
+	background-image: url(../images/book_add.png) !important;
+}
+.proceso-delete {
+	background-image: url(../images/book_delete.png) !important;
+}
+.guardar {
+	background-image: url(../images/disk.png) !important;
+}
+.buscar {
+	background-image: url(../images/find.png) !important;
+}
+.icon-add {
+	background-image: url(../images/add.png) !important;
+}
+.icon-delete {
+	background-image: url(../images/delete.png) !important;
+}
+.agregar-usuario-add {
+	background-image: url(../images/user_add.png) !important;
+}
+.eliminar-usuario-add {
+	background-image: url(../images/user_delete.png) !important;
+}
+.agregar {
+	background-image: url(../images/adds.png) !important;
+}
+.Nuevo {
+	background-image: url(../images/book_add.png) !important;
+}
+.Cerrar {
+	background-image: url(../images/application_home.png) !important;
+}
+.Error {
+	background-image: url(../images/error.png) !important;
+}
+.exportar-excel {
+	background-image: url(../images/page_white_excel.png) !important;
+}
+.plan-add {
+	background-image: url(../images/document1_add.png) !important;
+}
+.plan-delete {
+	background-image: url(../images/document1_delete.png) !important;
+}
+.control-add{
+	background-image: url(../images/list_add.png) !important;
+}
+.control-delete{
+	background-image: url(../images/delete_folder.png) !important;
+}
+.control-save{
+	background-image: url(../images/documents.png) !important;
+}
+.contrato-add{
+	background-image: url(../images/contract-add.png) !important;
+}
+.contrato-delete{
+	background-image: url(../images/contract-delete.png) !important;
+}
+.contrato-save{
+	background-image: url(../images/contract-accept.png) !important;
+}
+.printer{
+	background-image: url(../images/printer.png) !important;
+}
+.salir{
+	background-image: url(../images/computer_delete.png) !important;
+}
+.asignar{
+	background-image: url(../images/group.png) !important;
+}
+.modificar{
+	background-image: url(../images/folder_table.png) !important;
+}
+.nuevo-archivo{
+	background-image: url(../images/page_add.png) !important;
+}
+.eliminar-archivo{
+	background-image: url(../images/page_delete.png) !important;
+}
+.guardar-archivo{
+	background-image: url(../images/page_save.png) !important;
+}
+.nuevo-archivo-a{
+	background-image: url(../images/script_add.png) !important;
+}
+.eliminar-archivo-a{
+	background-image: url(../images/script_delete.png) !important;
+}
+
+
+

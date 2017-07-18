@@ -1,0 +1,499 @@
+<?php
+
+session_start();
+include('../config/conf.php');
+include_once('../php/FuncionesFecha.php');
+$base_grafica = $_REQUEST['base'];
+$tipo_grafica = $_REQUEST['tipo'];
+$co_unidad_reporte = $_REQUEST['localidad'];
+if ($_REQUEST['estado'] != '') {
+    $estado_grafica = $_REQUEST['estado'];
+} else {
+    $estado_grafica = 1;
+}
+$fe_ini = explode('/', $_REQUEST['fe_ini']);
+$anio1 = $fe_ini[2];
+$fe_ini = $fe_ini[2] . "-" . $fe_ini[1] . "-" . $fe_ini[0];
+$fe_fin = explode('/', $_REQUEST['fe_fin']);
+$anio2 = $fe_fin[2];
+$fe_fin = $fe_fin[2] . "-" . $fe_fin[1] . "-" . $fe_fin[0];
+$conexion = mysql_connect("orimat100", "root", "MySQL1");
+mysql_select_db("contratos", $conexion);
+switch ($_SESSION['co_rol']) {
+    case 0://Administrador del Sistema
+        $ubi_planificacion = "";
+        $ubi_contratacion = "";
+        break;
+    case 12://Administrador de Area
+        $ubi_planificacion = " AND p.co_ubicacion_usuario=" . $_SESSION['co_ubicacion'] . " AND p.co_organizacion_usuario=" . $_SESSION['co_organizacion'];
+        $ubi_contratacion = " AND py.co_ubicacion_usuario=" . $_SESSION['co_ubicacion'] . " AND py.co_organizacion_usuario=" . $_SESSION['co_organizacion'];
+    break;
+    case 11://Gerente de Region
+        $ubi_planificacion = " AND p.co_ubicacion_usuario=" . $_SESSION['co_ubicacion'] . " AND p.co_organizacion_usuario=" . $_SESSION['co_organizacion'];
+        $ubi_contratacion = " AND py.co_ubicacion_usuario=" . $_SESSION['co_ubicacion'] . " AND py.co_organizacion_usuario=" . $_SESSION['co_organizacion'];
+    break;
+    case 1://Gerente de Area
+        $ubi_planificacion = " AND p.co_ubicacion_usuario=" . $_SESSION['co_ubicacion'] . " AND p.co_organizacion_usuario=" . $_SESSION['co_organizacion'];
+        $ubi_contratacion = " AND py.co_ubicacion_usuario=" . $_SESSION['co_ubicacion'] . " AND py.co_organizacion_usuario=" . $_SESSION['co_organizacion'];
+    break;
+    case 2://Lider de Planificacion
+        $ubi_planificacion = " AND p.co_ubicacion_usuario=" . $_SESSION['co_ubicacion'] . " AND p.co_organizacion_usuario=" . $_SESSION['co_organizacion'];
+        $ubi_contratacion = " AND py.co_ubicacion_usuario=" . $_SESSION['co_ubicacion'] . " AND py.co_organizacion_usuario=" . $_SESSION['co_organizacion'];
+    break;
+    case 3://Supervisor de Planificacion
+        $ubi_planificacion = " AND p.co_ubicacion_usuario=" . $_SESSION['co_ubicacion'] . " AND p.co_organizacion_usuario=" . $_SESSION['co_organizacion'];
+        $ubi_contratacion = " AND py.co_ubicacion_usuario=" . $_SESSION['co_ubicacion'] . " AND py.co_organizacion_usuario=" . $_SESSION['co_organizacion'];
+    break;
+    case 10://Analista de Planificacion
+        $ubi_planificacion = " AND p.co_ubicacion_usuario=" . $_SESSION['co_ubicacion'] . " AND p.co_organizacion_usuario=" . $_SESSION['co_organizacion'];
+        $ubi_contratacion = " AND py.co_ubicacion_usuario=" . $_SESSION['co_ubicacion'] . " AND py.co_organizacion_usuario=" . $_SESSION['co_organizacion'];
+    break;
+    case 4://Lider de Contratacion
+        $ubi_planificacion = " AND p.co_ubicacion_usuario=" . $_SESSION['co_ubicacion'] . " AND p.co_organizacion_usuario=" . $_SESSION['co_organizacion'];
+        $ubi_contratacion = " AND py.co_ubicacion_usuario=" . $_SESSION['co_ubicacion'] . " AND py.co_organizacion_usuario=" . $_SESSION['co_organizacion'];
+    break;
+    case 5://Supervisor de Contratacion
+        $ubi_planificacion = " AND p.co_ubicacion_usuario=" . $_SESSION['co_ubicacion'] . " AND p.co_organizacion_usuario=" . $_SESSION['co_organizacion'];
+        $ubi_contratacion = " AND py.co_ubicacion_usuario=" . $_SESSION['co_ubicacion'] . " AND py.co_organizacion_usuario=" . $_SESSION['co_organizacion'];
+    break;
+    case 6://Analista de Contratacion
+        $ubi_planificacion = " AND p.co_ubicacion_usuario=" . $_SESSION['co_ubicacion'] . " AND p.co_organizacion_usuario=" . $_SESSION['co_organizacion'];
+        $ubi_contratacion = " AND py.co_ubicacion_usuario=" . $_SESSION['co_ubicacion'] . " AND py.co_organizacion_usuario=" . $_SESSION['co_organizacion'];
+    break;
+    case 7://Lider de Administracion
+        $ubi_planificacion = " AND p.co_ubicacion_usuario=" . $_SESSION['co_ubicacion'] . " AND p.co_organizacion_usuario=" . $_SESSION['co_organizacion'];
+        $ubi_contratacion = " AND py.co_ubicacion_usuario=" . $_SESSION['co_ubicacion'] . " AND py.co_organizacion_usuario=" . $_SESSION['co_organizacion'];
+    break;
+    case 8://Supervisor de Administracion
+        $ubi_planificacion = " AND p.co_ubicacion_usuario=" . $_SESSION['co_ubicacion'] . " AND p.co_organizacion_usuario=" . $_SESSION['co_organizacion'];
+        $ubi_contratacion = " AND py.co_ubicacion_usuario=" . $_SESSION['co_ubicacion'] . " AND py.co_organizacion_usuario=" . $_SESSION['co_organizacion'];
+    break;
+    case 9://Analista de Administracion
+        $ubi_planificacion = " AND p.co_ubicacion_usuario=" . $_SESSION['co_ubicacion'] . " AND p.co_organizacion_usuario=" . $_SESSION['co_organizacion'];
+        $ubi_contratacion = " AND py.co_ubicacion_usuario=" . $_SESSION['co_ubicacion'] . " AND py.co_organizacion_usuario=" . $_SESSION['co_organizacion'];
+    break;
+}
+//print_r($localidad);
+//console.log($localidad);
+/* 	$query="SELECT CONCAT(nu_anio,' [',tx_prioridad,']') AS nombre, COUNT(p.co_prioridad) AS valor
+  FROM i020t_prioridad pri, c003t_proyecto p
+  WHERE p.co_prioridad=pri.co_prioridad
+  AND p.nu_anio >= '$anio1'
+  AND p.nu_anio <= '$anio2'
+
+  GROUP BY nombre  ";
+
+  $result=mysql_query($query);
+  $json="[";
+  while($row = mysql_fetch_array($result)){
+  if($json!='[')
+  $json.=",";
+  $json.="['".$row['nombre']."',".$row['valor']."]";
+
+
+  }
+  echo $json."]";
+
+ */
+
+if ($tipo_grafica == 1) {
+    $json = '';
+    if ($localidad != '1') {
+        /* $query="SELECT  CONCAT(SUBSTRING(MONTHNAME(fe_inicio_estimada_p),1,3),'-',YEAR(fe_inicio_estimada_p)) AS nombre,
+
+
+          SUM(CASE WHEN p.fe_especificaciones != '0000-00-00' THEN 1 END) AS valor_real,
+          COUNT(p.fe_inicio_estimada_p) AS valor_plan
+          FROM  c003t_proyecto p
+          WHERE p.fe_inicio_estimada_p BETWEEN '$fe_ini' AND '$fe_fin'
+
+          GROUP BY nombre
+          ORDER BY YEAR(fe_inicio_estimada_p),MONTH(fe_inicio_estimada_p),DAY(fe_inicio_estimada_p)	";
+
+         */
+
+        if (calculoDiasHab($fe_ini, $fe_fin) <= 15) {
+            $result = mysql_query("SELECT  CONCAT(SUBSTRING(MONTHNAME(fe_inicio_estimada_p),1,3),'-',YEAR(fe_inicio_estimada_p)) AS nombre,
+
+	
+SUM(p.fe_especificaciones = p.fe_inicio_estimada_p) AS valor_real,
+COUNT(p.fe_inicio_estimada_p) AS valor_plan
+FROM  c003t_proyecto p
+WHERE p.fe_inicio_estimada_p BETWEEN '$fe_ini' AND '$fe_fin' 
+
+GROUP BY nombre 
+ORDER BY YEAR(fe_inicio_estimada_p),MONTH(fe_inicio_estimada_p),DAY(fe_inicio_estimada_p)	");
+        }
+        if (calculoDiasHab($fe_ini, $fe_fin) > 15 && calculoDiasHab($fe_ini, $fe_fin) <= 45) {
+            $result = mysql_query("SELECT  CONCAT(SUBSTRING(MONTHNAME(fe_inicio_estimada_p),1,3),'-',YEAR(fe_inicio_estimada_p)) AS nombre,
+
+	
+SUM(p.fe_especificaciones = p.fe_inicio_estimada_p) AS valor_real,
+COUNT(p.fe_inicio_estimada_p) AS valor_plan
+FROM  c003t_proyecto p
+WHERE p.fe_inicio_estimada_p BETWEEN '$fe_ini' AND '$fe_fin' 
+
+GROUP BY nombre 
+ORDER BY YEAR(fe_inicio_estimada_p),MONTH(fe_inicio_estimada_p),DAY(fe_inicio_estimada_p)	");
+        }
+        if (calculoDiasHab($fe_ini, $fe_fin) > 45) {
+            $result = mysql_query("SELECT  CONCAT(SUBSTRING(MONTHNAME(fe_inicio_estimada_p),1,3),'-',YEAR(fe_inicio_estimada_p)) AS nombre,
+
+	
+SUM(p.fe_especificaciones = p.fe_inicio_estimada_p) AS valor_real,
+COUNT(p.fe_inicio_estimada_p) AS valor_plan
+FROM  c003t_proyecto p
+WHERE p.fe_inicio_estimada_p BETWEEN '$fe_ini' AND '$fe_fin' 
+
+GROUP BY nombre 
+ORDER BY YEAR(fe_inicio_estimada_p),MONTH(fe_inicio_estimada_p),DAY(fe_inicio_estimada_p)	");
+        }
+    }
+    //$result=mysql_query($query);
+    $json = "";
+    $json1 = "";
+    $json2 = "";
+    while ($row = mysql_fetch_array($result)) {
+        if ($cat != '')
+            $cat.=",";
+        $cat.="'" . $row['nombre'] . "'";
+        if ($json1 != '')
+            $json1.=",";
+        $json1.="" . $row['valor_real'] . "";
+        if ($json2 != '')
+            $json2.=",";
+        $json2.="" . $row['valor_plan'] . "";
+    }
+    $json.= "{name:'PROYECTOS RECIBIDOS',data:[$json1]}";
+    $json.= ",{name:'PROYECTOS PLANIFICADOS',data:[$json2]}";
+    echo "{data:[$json],categoria:[$cat]}";
+}
+else {
+
+    switch ($_REQUEST['base']) {
+
+        case 1:
+            if ($co_unidad_reporte == 1) {
+                $result = mysql_query("SELECT CONCAT(' [',tx_prioridad,']') AS nombre, 
+						COUNT(p.co_prioridad ) AS valor
+						FROM i020t_prioridad pri, c003t_proyecto p
+						WHERE p.co_prioridad=pri.co_prioridad
+                                                $ubi_planificacion
+						AND p.nu_anio >= '$anio1'
+						AND p.nu_anio <= '$anio2'
+						GROUP BY p.co_prioridad");
+            } else {
+                $result = mysql_query("SELECT p.co_proyecto, py.co_prioridad, py.fe_especificaciones, 
+						CONCAT(' [',tx_prioridad,']') AS nombre, COUNT(py.co_prioridad ) AS valor
+						FROM c004t_proceso p
+						LEFT JOIN c003t_proyecto AS py ON py.co_proyecto=p.co_proyecto 
+						LEFT JOIN i020t_prioridad AS pri ON py.co_prioridad= pri.co_prioridad
+						WHERE py.co_prioridad=pri.co_prioridad 
+                                                $ubi_contratacion
+                                                AND py.fe_especificaciones BETWEEN '$fe_ini' AND '$fe_fin'
+						GROUP BY py.co_prioridad");
+            }
+            break;
+
+        case 2://ORGANIZACION
+            if ($co_unidad_reporte == 1) {
+                $result = mysql_query("SELECT CONCAT(' [',tx_organizacion,']') AS nombre, 
+						COUNT(p.co_organizacion ) AS valor
+						FROM i005t_organizacion o, c003t_proyecto p
+						WHERE p.co_organizacion=o.co_organizacion
+                                                $ubi_planificacion
+						AND p.nu_anio >= '$anio1'
+						AND p.nu_anio <= '$anio2'
+						GROUP BY p.co_organizacion");
+            }
+            if ($co_unidad_reporte == 2) {
+                $result = mysql_query(" SELECT p.co_proyecto, py.co_organizacion, py.fe_especificaciones,
+				CONCAT(' [',tx_organizacion,']') AS nombre, 
+						COUNT(py.co_organizacion ) AS valor
+						FROM c004t_proceso p
+						LEFT JOIN c003t_proyecto AS py ON py.co_proyecto=p.co_proyecto 
+						LEFT JOIN i005t_organizacion AS o ON py.co_organizacion = o.co_organizacion
+						WHERE py.co_organizacion=o.co_organizacion 
+                                                $ubi_contratacion
+                                                AND py.fe_especificaciones BETWEEN '$fe_ini' AND '$fe_fin' 
+						GROUP BY py.co_organizacion ");
+            }
+
+            if ($co_unidad_reporte == 3) {
+                $result = mysql_query(" SELECT CONCAT(' [',tx_organizacion,']') AS nombre, 
+						COUNT(c.co_organizacion ) AS valor
+						FROM i005t_organizacion o, c011t_contrato c
+						WHERE c.co_organizacion=o.co_organizacion
+						AND c.fe_carta_preliminar >= '$fe_ini'
+						AND c.fe_carta_preliminar <= '$fe_fin'
+						GROUP BY c.co_organizacion");
+            }
+            break;
+
+        case 3:
+            if ($co_unidad_reporte == 1) {
+                $result = mysql_query("SELECT CONCAT(' [',tx_modalidad,']') AS nombre, 
+						COUNT(p.co_modalidad ) AS valor
+						FROM i006t_modalidad mo, c003t_proyecto p
+						WHERE p.co_modalidad=mo.co_modalidad
+                                                $ubi_planificacion
+						AND p.nu_anio >= '$anio1'
+						AND p.nu_anio <= '$anio2'
+						GROUP BY p.co_modalidad ");
+            } else {
+                $result = mysql_query("SELECT CONCAT(' [',tx_modalidad,']') AS nombre, 
+						COUNT(p.co_modalidad ) AS valor
+						FROM c004t_proceso p
+						LEFT JOIN c003t_proyecto AS py ON py.co_proyecto=p.co_proyecto 
+						LEFT JOIN i006t_modalidad AS mo ON p.co_modalidad = mo.co_modalidad
+						WHERE p.co_modalidad=mo.co_modalidad 
+                                                $ubi_contratacion
+                                                AND py.fe_especificaciones BETWEEN '$fe_ini' AND '$fe_fin' 
+						GROUP BY p.co_modalidad ");
+            }
+
+            break;
+
+        case 4:
+            if ($co_unidad_reporte == 1) {
+                $result = mysql_query("SELECT CONCAT(' [',tx_naturaleza,']') AS nombre, 
+						COUNT(p.co_naturaleza ) AS valor
+						FROM i008t_naturaleza na, c003t_proyecto p
+						WHERE p.co_naturaleza=na.co_naturaleza
+                                                $ubi_planificacion
+						AND p.nu_anio >= '$anio1'
+						AND p.nu_anio <= '$anio2'
+						GROUP BY p.co_naturaleza ");
+            } else {
+                $result = mysql_query("
+						SELECT py.fe_especificaciones, p.co_naturaleza, CONCAT(' [',tx_naturaleza,']') AS nombre, 
+						COUNT(p.co_naturaleza ) AS valor 
+						
+						FROM c004t_proceso AS p
+						
+				LEFT JOIN i008t_naturaleza AS n ON p.co_naturaleza=n.co_naturaleza
+				LEFT JOIN c003t_proyecto AS py ON py.co_proyecto=p.co_proyecto 
+						WHERE p.co_naturaleza=n.co_naturaleza  
+                                                $ubi_contratacion
+                                                AND py.fe_especificaciones BETWEEN '$fe_ini' AND '$fe_fin' 
+						GROUP BY p.co_naturaleza");
+            }
+
+            break;
+
+        case 5:
+            if ($co_unidad_reporte == 1) {
+                $query = "SELECT tx_organizacion_abreviada AS nombre,  
+						COUNT(p.co_prioridad) AS valor_total,
+						COUNT(IF(p.co_prioridad=1,1,NULL)) AS valor_1,
+						COUNT(IF(p.co_prioridad=2,1,NULL)) AS valor_2,
+						COUNT(IF(p.co_prioridad=3,1,NULL)) AS valor_3,
+						COUNT(IF(p.co_prioridad=4,1,NULL)) AS valor_4
+						FROM c003t_proyecto p,i020t_prioridad pri,i005t_organizacion o
+						WHERE p.co_organizacion=o.co_organizacion 
+                                                $ubi_planificacion
+						AND p.co_prioridad=pri.co_prioridad
+						AND p.fe_especificaciones BETWEEN '$fe_ini' AND '$fe_fin' 
+						GROUP BY p.co_organizacion
+						ORDER BY valor_total DESC";
+
+                $result = mysql_query($query);
+                $cat = '';
+                $json = "";
+                $json1 = "";
+                $json2 = "";
+                $json3 = "";
+                $json4 = "";
+                $json5 = "";
+                while ($row = mysql_fetch_array($result)) {
+                    if ($cat != '')
+                        $cat.=",";
+                    $cat.="'" . $row['nombre'] . "'";
+
+                    if ($json1 != '')
+                        $json1.=",";
+                    $json1.="" . $row['valor_total'] . "";
+
+                    if ($json2 != '')
+                        $json2.=",";
+                    $json2.="" . $row['valor_1'] . "";
+
+                    if ($json3 != '')
+                        $json3.=",";
+                    $json3.="" . $row['valor_2'] . "";
+
+                    if ($json4 != '')
+                        $json4.=",";
+                    $json4.="" . $row['valor_3'] . "";
+
+                    if ($json5 != '')
+                        $json5.=",";
+                    $json5.="" . $row['valor_4'] . "";
+                }
+                $json.= "{name:'Nro de Proyectos',data:[$json1]}";
+                $json.= ",{name:'Prioridad P+',data:[$json2]}";
+                $json.= ",{name:'Prioridad P1',data:[$json3]}";
+                $json.= ",{name:'Prioridad P2',data:[$json4]}";
+                $json.= ",{name:'Prioridad P3',data:[$json5]}";
+                echo "{data:[$json],categoria:[$cat]}";
+            }
+            else {
+                $query = "SELECT py.co_organizacion, py.co_prioridad, py.fe_especificaciones, o.tx_organizacion_abreviada AS nombre,
+		COUNT(py.co_prioridad) AS valor_total,
+		COUNT(IF(py.co_prioridad=1,1,NULL)) AS valor_1,
+		COUNT(IF(py.co_prioridad=2,1,NULL)) AS valor_2,
+		COUNT(IF(py.co_prioridad=3,1,NULL)) AS valor_3,
+		COUNT(IF(py.co_prioridad=4,1,NULL)) AS valor_4
+		FROM c004t_proceso AS p
+		LEFT JOIN c003t_proyecto AS py ON p.co_proyecto=py.co_proyecto 
+		LEFT JOIN i005t_organizacion AS o ON py.co_organizacion = o.co_organizacion
+		LEFT JOIN i020t_prioridad AS pri ON py.co_prioridad= pri.co_prioridad
+		
+		WHERE py.co_organizacion=o.co_organizacion AND py.co_prioridad=pri.co_prioridad
+		AND py.fe_especificaciones BETWEEN '$fe_ini' AND '$fe_fin' 
+		
+                GROUP BY py.co_organizacion
+		ORDER BY valor_total DESC
+				";
+
+                $result = mysql_query($query);
+                $cat = '';
+                $json = "";
+                $json1 = "";
+                $json2 = "";
+                $json3 = "";
+                $json4 = "";
+                $json5 = "";
+                while ($row = mysql_fetch_array($result)) {
+                    if ($cat != '')
+                        $cat.=",";
+                    $cat.="'" . $row['nombre'] . "'";
+
+                    if ($json1 != '')
+                        $json1.=",";
+                    $json1.="" . $row['valor_total'] . "";
+
+                    if ($json2 != '')
+                        $json2.=",";
+                    $json2.="" . $row['valor_1'] . "";
+
+                    if ($json3 != '')
+                        $json3.=",";
+                    $json3.="" . $row['valor_2'] . "";
+
+                    if ($json4 != '')
+                        $json4.=",";
+                    $json4.="" . $row['valor_3'] . "";
+
+                    if ($json5 != '')
+                        $json5.=",";
+                    $json5.="" . $row['valor_4'] . "";
+                }
+                $json.= "{name:'Nro de Proyectos',data:[$json1]}";
+                $json.= ",{name:'Prioridad P+',data:[$json2]}";
+                $json.= ",{name:'Prioridad P1',data:[$json3]}";
+                $json.= ",{name:'Prioridad P2',data:[$json4]}";
+                $json.= ",{name:'Prioridad P3',data:[$json5]}";
+                echo "{data:[$json],categoria:[$cat]}";
+            }
+
+            break;
+
+        case '6'://UBICACION
+            if ($co_unidad_reporte == 1) {
+                $result = mysql_query(" SELECT CONCAT(' [',tx_ubicacion,']') AS nombre, 
+								COUNT(p.co_ubicacion ) AS valor
+								FROM i002t_ubicacion u, c003t_proyecto p
+								WHERE p.co_ubicacion=u.co_ubicacion
+								$ubi_planificacion
+                                                                AND p.nu_anio >= '$anio1'
+                                                                AND p.nu_anio <= '$anio2'
+								GROUP BY p.co_ubicacion");
+            }
+            if ($co_unidad_reporte == 3) {
+                $result = mysql_query(" SELECT CONCAT(' [',tx_ubicacion,']') AS nombre, 
+								COUNT(c.co_ubicacion ) AS valor
+								FROM i002t_ubicacion u, c011t_contrato c
+								WHERE c.co_ubicacion=u.co_ubicacion
+								AND c.fe_carta_preliminar >= '$fe_ini'
+								AND c.fe_carta_preliminar <= '$fe_fin'
+								GROUP BY c.co_ubicacion");
+            }
+
+            break;
+
+        case '7': //PLAN/REAL
+            if ($co_unidad_reporte == 3) {
+                $query = "SELECT  org.co_organizacion, org.tx_organizacion_abreviada, COUNT(c.co_contrato) AS valor_1, COUNT(m.co_contrato) AS valor_2
+						FROM c011t_contrato c
+							LEFT JOIN i005t_organizacion org ON org.co_organizacion=c.co_organizacion
+							LEFT JOIN c007t_modificaciones m ON m.co_contrato=c.co_contrato AND co_tipo_modificacion=20 AND nu_modificacion=1 AND fe_valor BETWEEN '$fe_ini' AND '$fe_fin' 
+						WHERE fe_culminacion BETWEEN '$fe_ini' AND '$fe_fin'
+						GROUP BY org.co_organizacion
+						ORDER BY valor_1 DESC ";
+
+                $result = mysql_query($query);
+                $cat = '';
+                $json = "";
+                $json1 = "";
+                $json2 = "";
+                while ($row = mysql_fetch_array($result)) {
+                    if ($cat != '')
+                        $cat.=",";
+                    $cat.="'" . $row['tx_organizacion_abreviada'] . "'";
+
+                    if ($json1 != '')
+                        $json1.=",";
+                    $json1.="" . $row['valor_1'] . "";
+
+                    if ($json2 != '')
+                        $json2.=",";
+                    $json2.="" . $row['valor_2'] . "";
+                }
+                $json.= "{name:'PLAN',data:[$json1]}";
+                $json.= ",{name:'REAL',data:[$json2]}";
+
+                echo "{data:[$json],categoria:[$cat]}";
+            }
+
+            break;
+    }
+//else {}
+    /* switch($_REQUEST['base'] and $localidad!='2'){
+
+
+
+      case 1:
+
+      $result=mysql_query("SELECT CONCAT(' [',tx_modalidad,']') AS nombre,
+      COUNT(p.co_modalidad) AS valor
+      FROM i006t_modalidad pri, c004t_proceso p, c003t_proyecto py
+      WHERE p.co_modalidad=pri.co_modalidad
+      AND py.fe_especificaciones >= 'fe_ini'
+      AND py.fe_especificaciones <= 'fe_fin'
+      GROUP BY nombr  ");
+
+      break;
+
+      } */
+    if ($_REQUEST['base'] != 5 && $_REQUEST['base'] != 7) {
+        //$result=mysql_query($query);
+        $json = "[";
+        while ($row = mysql_fetch_array($result)) {
+            if ($json != '[')
+                $json.=",";
+            switch ($tipo_grafica) {
+                case 2:
+                    $json.="{name:'" . $row['nombre'] . "',data:[" . $row['valor'] . "]}";
+                    break;
+                case 3:
+                    $json.="['" . $row['nombre'] . "'," . $row['valor'] . "]";
+                    break;
+            }
+        }
+        echo $json . "]";
+    }
+} //else
+
+mysql_close($conexion);
+?>

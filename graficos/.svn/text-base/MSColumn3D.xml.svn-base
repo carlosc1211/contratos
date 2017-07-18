@@ -1,0 +1,24 @@
+<chart caption='Correcciones Realizadas Vs. Documentos Manejados' shownames='1' showvalues='2' decimals='0' 'numberPrefix='$'>
+<categories><category label='Servicios Logisticos' /><category label='Mantenimiento' /><category label='Asuntos Publicos' /><category label='Desarrollo Urbano' /><category label='Desarrollo Social' /><category label='Servicios Electricos' /><category label='Relaciones Gubernamentales' /><category label='Recursos Humanos' /></categories>
+<dataset seriesName='Correcciones Realizadas' color='AFD8F8' showValues='0'>
+<set value='57401.85' />
+<set value='41941.19' />
+<set value='45263.37' />
+<set value='117320.16' />
+<set value='114845.27' />
+<set value='41941.19' />
+<set value='45263.37' />
+<set value='197320.16' />
+</dataset>
+<dataset seriesName='Documentos Manejados' color='F6BD0F' showValues='0'>
+<set value='25601.34' />
+<set value='20148.82' />
+<set value='17372.76' />
+<set value='35407.15' />
+<set value='38105.68' />
+<set value='25601.34' />
+<set value='20148.82' />
+<set value='117372.76' />
+</dataset>
+
+</chart>

@@ -1,0 +1,94 @@
+<?php 	
+	session_start();
+	require_once 'PlanificacionClase.php';	
+	$objPlanificacion = new PlanificacionClase();
+	$accion = (isset($_POST['accion']) ? $_POST['accion'] : $_GET['accion']);
+	
+function vacio($var) {
+
+    return ($var != '');
+
+					 }
+	$registro = array_filter($_REQUEST, "vacio");
+	$filtro = str_replace('\"','"',$_REQUEST["filter"]);
+	$filtros = json_decode($filtro, true);	
+	
+	switch ($accion) {
+	
+					//  caso guardar 
+					case 'insertar':	
+					//echo "hola ";
+					$cond = $_REQUEST['Resultados'];
+					$cond = str_replace('\"','"',$cond);
+					$condicion['co_proceso']=$_REQUEST['condicion'];
+					$registro = json_decode($cond, true);
+					//$registro = array_filter($registro, "vacio");
+			
+					$planificacion['nu_anio']=$_REQUEST['nu_anio'];
+					$planificacion['tx_descripcion']=$_REQUEST['tx_descripcion'];
+								
+						
+					$filtros = $_REQUEST["filter"];		
+					//print_r ($planificacion);
+					$resulta = $objPlanificacion->insertar($planificacion);
+					$resultado = $objPlanificacion->mostrar($_REQUEST['start'], $_REQUEST['limit'], $_REQUEST["sort"], $_REQUEST["dir"]);
+		
+					for($i=0; $i<count($resultado); $i++)
+					$resultado[$i]['resp'] =$resulta;
+			
+					$tot = $objPlanificacion>contar();
+					$total = $tot[0]['cuenta'];
+
+		break;
+		
+		case 'modificar':	 		               //  caso guardar 
+		
+
+			$cond = $_REQUEST['Resultados'];
+			$cond = str_replace('\"','"',$cond);
+			$condicion['co_proceso']=$_REQUEST['condicion'];
+			
+			$registro = json_decode($cond, true);
+		
+			$registro = array_filter($registro, "vacio");
+			if(isset($registro['nu_anio']))
+				$planificacion['nu_anio']=$registro['nu_anio'];
+			
+			if(isset($registro['tx_descripcion']))
+				$planificacion['tx_descripcion']=$registro['tx_descripcion'];
+								
+			$filtros = $_REQUEST["filter"];		
+			
+			if($_REQUEST['xaction']=='create'){//Si estamos creando un Usuario
+			   //$resulta = $objPlanificacion->insertar();
+			}
+			else{//Si es un update
+				if(isset($registro['co_proceso']))
+				$condicion['co_proceso']=$registro['co_proceso'];
+				$resulta = $objPlanificacion->actualizar($planificacion, $condicion);
+			}
+			
+			
+			$resultado = $objPlanificacion->mostrar($_REQUEST['start'], $_REQUEST['limit'], $_REQUEST["sort"], $_REQUEST["dir"]);
+		
+			for($i=0; $i<count($resultado); $i++)
+				$resultado[$i]['resp'] =$resulta;
+			
+			$tot = $objPlanificacion->contar();
+				$total = $tot[0]['cuenta'];
+
+		break;
+		case 'eliminar':  //  caso  eliminar
+			$condiciones['co_proceso']=$_REQUEST['co_proceso'];
+			$resultado = $objPlanificacion->eliminar($condiciones);
+			$filtros = $_REQUEST["filter"];	
+			$resultado = $objPlanificacion->mostrar($_REQUEST['start'], $_REQUEST['limit'], $_REQUEST["sort"], $_REQUEST["dir"]);
+			$tot = $objPlanificacion->contar();
+			$total = $tot[0]['cuenta'];
+		break;
+
+	}	
+	if($accion!='login')
+		echo $resultado2='{"total":'.(($total)? $total : 0).', "Resultados":'.json_encode($resultado).'}';
+
+?>

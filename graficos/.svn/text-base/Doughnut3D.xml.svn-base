@@ -1,0 +1,12 @@
+<chart caption='Gr&aacute;fica Total Documentos' ></chart>
+<chart palette='2' showBorder='1'>
+
+            <set label='Distrito Furrial, Documentos:' value='146'  />
+
+            <set label='Distrito PDM, Documentos:' value='150' />
+
+            <set label='Cooperativas E y P Oriente, Documentos:' value='105'/>
+
+           
+</chart>
+

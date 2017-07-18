@@ -1,0 +1,130 @@
+var loadMask = new Ext.LoadMask(Ext.getBody(), {msg:"Por favor espere..."});
+var imgPrincipal = new Ext.BoxComponent({
+    autoEl: {
+        tag: 'img',
+        src: 'images/imagenMapa.png'
+    }
+});
+//myMask.show();
+Ext.onReady(function() {
+
+	 	
+    //WinLogin.show();
+	
+	//WinProceso.show();
+	var index = new Ext.Viewport({
+	layout:'fit',
+	
+    items:[{
+		xtype: 'grouptabpanel',
+		id:'grouptabpanel',
+    	tabWidth: 145,
+    	activeGroup: 0,
+    	/*listeners: {
+					'click':function(){
+					alert('aqui');
+					}
+					},*/
+    	items: [{
+    		mainItem: 0,
+    		items: [{
+                title: 'Men&uacute;..',
+                tabTip: 'Dashboard tabtip',           
+                items: [imgPrincipal]
+            },{
+    			title: 'Planificac&oaciute;n',
+    			iconCls: 'x-icon-tickets',
+                tabTip: 'Gesti&oacute;n general  de la Planificaci&oacute;n',
+                style: 'padding: 10px;',	
+                
+                //layout: 'fit',
+				
+				//// llamado a los grid en el archivo agenda.js 
+				
+				items: [grid_agenda,grid_proceso_agenda]
+    		},{
+    			title: 'Expedientes',
+				//disabled:true,
+                layout: 'fit',
+                iconCls: 'x-icon-tickets',
+                tabTip: 'Gesti&oacute;n de Proceso de Contrataci&oacute',
+                style: 'padding: 10px;',			
+                items: [grid_proceso]
+    		}/*,{
+    			title: 'Empresas',
+				//disabled:true,
+                iconCls: 'x-icon-subscriptions',
+                tabTip: 'Gesti&oacute;n de Empresas Contratantes',
+                style: 'padding: 10px;',
+				layout: 'fit',
+    			items: [{
+					xtype: 'tabpanel',
+					activeTab: 1,
+					items: [{
+						title: 'Empresas'//,							html: Ext.example.shortBogusMarkup
+					}]	
+				}]
+    		},{
+    			title: 'Cronogramas',
+				//disabled:true,
+                iconCls: 'x-icon-users',
+                tabTip: 'Gesti&oacute;n de Cronograma de Proceso',
+                style: 'padding: 10px;'//,    				html: Ext.example.shortBogusMarkup		
+    		}*/,{
+    			title: 'Reportes',
+				//disabled:true,
+                iconCls: 'x-icon-users',
+                tabTip: 'Generar Reportes de los Procesos',
+                style: 'padding: 10px;'//,    				html: Ext.example.shortBogusMarkup*/			
+    		},{
+				title: 'Estad&iacute;sticas',
+				//disabled:true,
+                iconCls: 'x-icon-users',
+                tabTip: 'Gesti&oacute;n General de Estad&iacute;sticas',
+				style: 'padding: 10px;'//,    				html: Ext.example.shortBogusMarkup	*/		
+    		},{
+    			title: '',
+				//disabled:true,
+                iconCls: 'x-icon-users',
+                tabTip: 'Users tabtip',
+                style: 'padding: 10px;'//,    				html: Ext.example.shortBogusMarkup*/			
+    		}]
+		},{
+			expanded: true,
+            items: [{
+				title: 'Administraci&oacute;n',
+                iconCls: 'x-icon-configuration',
+                tabTip: 'Configuration tabtip',
+                style: 'padding: 10px;'//,                    html: Ext.example.shortBogusMarkup 
+            },{
+                title: 'Usuarios',
+                iconCls: 'x-icon-templates',
+                tabTip: 'Templates tabtip',
+                style: 'padding: 10px;',//,                    html: Ext.example.shortBogusMarkup
+                items: [grid_usuarios]
+           
+            }/*,{
+                title: 'Tablas',
+                iconCls: 'x-icon-templates',
+                tabTip: 'Templates tabtip',
+                style: 'padding: 10px;'
+           
+            },{
+                title: 'Cronogramas',
+                iconCls: 'x-icon-templates',
+                tabTip: 'Templates tabtip',
+                style: 'padding: 10px;'
+           
+            }*/]
+		}]
+	}]
+});/*
+WinLogin.on({'show':function(){
+			//alert(2);
+			Ext.getCmp('tx_usuario').focus(true);
+			alert(2);
+		}
+	});*/
+	
+});
+

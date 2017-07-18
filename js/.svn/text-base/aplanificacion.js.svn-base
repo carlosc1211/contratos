@@ -1,0 +1,547 @@
+/*
+var column_planificacion = new Ext.grid.ColumnModel([
+//new Ext.grid.RowNumberer(),
+	expander,	
+	{
+		header: 'N&deg; Expediente',
+		dataIndex: 'nu_expediente',
+		width: 80,
+		sortable: true
+	},{
+		header: 'N&deg; Solped',
+		dataIndex: 'nu_solped',
+		width: 80,
+		sortable: true
+	},{
+		header: 'Descripci&oacute;n',
+		dataIndex: 'tx_descripcion',
+		//align: 'center',
+		width: 150
+	},{
+		header: 'Ubicaci&oacute;n',
+		dataIndex: 'tx_ubicacion',
+		width: 120,
+		sortable: true
+	},{
+		header: 'Organizaci&oacute;n',
+		dataIndex: 'tx_organizacion',
+		width: 120,
+		sortable: true
+	},{
+		xtype: 'datecolumn',
+		header: 'Fecha de Inicio',
+		dataIndex: 'fe_inicio',
+		format: 'd/m/Y',
+		width: 80,
+		sortable: true
+	}, {
+		header: 'Tipo de Actividad',
+		dataIndex: 'tx_tipo_actividad',
+		width: 120,
+		sortable: true
+	}, {
+		header: 'Modalidad',
+		dataIndex: 'tx_modalidad',
+		width: 120,
+		sortable: true
+	}, {
+		header: 'Rango',
+		dataIndex: 'tx_rango_cont',
+		width: 80,
+		sortable: true
+	}
+]);
+
+var grid_planificacion = new Ext.grid.GridPanel({
+	id: grid_planificacion,
+	title:'nuevo',
+	width: 700,
+	height: 300,
+	plugins:[expander],
+	region: 'center',
+	margins: '0 5 5 5',
+	cm: column_planificacion,
+	tbar: [{
+		iconCls: 'proceso-add',
+		text: 'Nuevo Proceso',
+		handler: function () {
+			formPanel_proceso.getForm().reset();
+			WinProceso.setTitle("Proceso Nuevo");
+			store_proceso.setBaseParam('accion','insertar');
+			WinProceso.show();
+		}
+	}, {
+		iconCls: 'proceso-delete',
+		text: 'Eliminar Proceso',
+		//disabled: true,
+		handler: function () {
+			store_planificacion.reload({params:{accion: 'eliminar',co_proceso:co_proceso}});
+		}
+	},{
+		iconCls: 'buscar',
+		text: 'Busqueda Avanzada',
+		handler: function () {
+			//WinProceso.show();
+		}
+	}],
+});
+
+*/
+
+Ext.Ajax.timeout = 120000;
+var co_ubicacion=0;
+var co_proceso=0;
+
+// name: PLANIFICACION
+// @param
+// @return el JSON definido para guardar un proceso
+
+function datosPlanificacion(){		
+	datos = '{"nu_anio" : "'+Ext.getCmp("nu_anio").getValue()+'", ';
+	datos += '"tx_descripcion" : "'+Ext.getCmp("tx_descripcion").getValue()+'", ';
+	datos += '"co_ubicacion" : "'+co_ubicacion+'", ';
+	datos += '"co_organizacion" : "'+Ext.getCmp("co_organizacion").getValue()+'", ';
+	datos += '"co_naturaleza" : "'+Ext.getCmp("co_naturaleza").getValue()+'", ';
+	datos += '"co_regimen_lab" : "'+Ext.getCmp("co_regimen_lab").getValue()+'", ';
+	datos += '"co_modalidad" : "'+Ext.getCmp("co_modalidad").getValue()+'", ';
+	datos += '"co_mecanismo_verif" : "'+Ext.getCmp("co_mecanismo_verif").getValue()+'", ';
+	datos += '"co_rango" : "'+Ext.getCmp("co_rango").getValue()+'", ';
+	datos += '"nu_plazo_ejec" : "'+Ext.getCmp("nu_plazo_ejec").getValue()+'" , ';
+	datos += '"co_tipo_act" : "'+Ext.getCmp("co_tipo_act").getValue()+'", ';
+	datos += '"nu_renglon" : "'+Ext.getCmp("nu_renglon").getValue()+'", ';
+	datos += '"fe_inicio_estimada_p" : "'+Ext.getCmp("fe_inicio_estimada_p").getValue().format('Y-m-d')+'", ';
+	datos += '"fe_inicio_estimada_a" : "'+Ext.getCmp("fe_inicio_estimada_a").getValue().format('Y-m-d')+'", ';
+	datos += '"co_tipo_presupuesto" : "'+Ext.getCmp("co_tipo_presupuesto").getValue()+'" }';
+	return datos;
+}
+
+//--------------------------------------------STORE PLANIFICACION----------------------------------------------------------------------
+var writer = new Ext.data.JsonWriter();
+var store_planificacion = new Ext.data.JsonStore({  
+     id:'store_planificacion',
+	 url: 'php/PlanificacionInterfaz.php', 
+	 writer: writer,
+	 //reader:reader,
+	 batch:false,
+	 //autoSave:false,
+	 totalProperty:'total',
+	 root: 'Resultados',
+	 //pruneModifiedRecords:true,
+	 idProperty: 'co_proceso',
+	 fields: [
+			{name: 'co_proceso'},
+			{name: 'nu_anio'},
+			{name: 'tx_descripcion'},
+			{name: 'tx_ubicacion'},
+			{name: 'co_organizacion'},
+			{name: 'tx_organizacion'},
+			{name: 'co_naturaleza'},
+			{name: 'tx_naturaleza'},
+			{name: 'co_regimen_lab'},
+			{name: 'tx_regimen_lab'},
+			{name: 'co_modalidad'},
+			{name: 'tx_modalidad'},
+			{name: 'co_mecanismo_verif'},
+			{name: 'tx_mecanismo_verif'},
+			{name: 'co_rango'},
+			{name: 'tx_rango'},	
+			{name: 'nu_plazo_ejec'},
+			{name: 'tx_tipo_act'},
+			{name: 'nu_renglon'},
+			{name: 'fe_inicio_estimada_p', type: 'date', dateFormat: 'Y-m-d'},
+			{name: 'fe_inicio_estimada_a', type: 'date', dateFormat: 'Y-m-d'},
+			{name: 'co_tipo_presupuesto'},
+			{name: 'tx_tipo_presupuesto'}
+			],
+     
+     baseParams: { 
+				   start:0,limit:1000,sort:'',dir:'',
+				   filter:'',
+				   accion:'refrescar',
+		           //tx_indicador:Usuario.usuario
+				 },
+	 
+	 listeners:  {
+					update : function(store, record,operation) {   
+																// function actualizar // update
+																//alert(operation);
+																if(operation=='edit'){
+																						//store_planificacion.commitChanges(); 
+																					  }
+															     },
+					remove : function(store, record,index){
+															 store.reload({params:{co_proceso:record.get('co_proceso')}});
+			                                                }
+				  }
+
+});
+store_planificacion.reload();
+
+//--------------------------------------------GRID PLANIFICACION-----------------------------------------------------------------------
+var grid_planificacion = new Ext.grid.GridPanel({
+		id:'grid_planificacion', //identificacion del var grid_planificacion = new Ext.grid.GridPanel
+		name:'grid_planificacion',
+        store: store_planificacion,
+        //width: 1100,
+        anchor:'100%',
+        height: 350,
+        region:'center',
+        margins: '0 5 5 5',
+        
+		// Columnas del grid_planificacion
+        columns: [ new Ext.grid.RowNumberer(),
+					{	header: 'A&ntilde;o', // encabezamiento del campo del grid_planificacion
+						width: 40,
+						sortable: true,
+						dataIndex: 'nu_anio',
+					},{
+						header: 'Descripci&oacute;n del Proceso',
+						width: 130,
+						sortable: true,
+						dataIndex: 'tx_descripcion',
+					},{
+						header: 'Filial',
+						width: 100,
+						sortable: true,
+						dataIndex: 'tx_filial',
+					},{
+					   header: 'Negocio',
+					   width: 100,
+					   sortable: true,
+					   dataIndex: 'tx_negocio',                  
+					},{
+					   header: 'Divisi&oacute;n',
+					   width: 100,
+					   sortable: true, 
+					   dataIndex: 'tx_division',         
+					},{
+					   header: 'Distrito',
+					   width: 100,
+					   sortable: true, 
+					   dataIndex: 'tx_distrito',         
+					},{
+					   header: 'Gerencia',
+					   width: 100,
+					   sortable: true,   
+					   dataIndex: 'tx_organizacion',       
+					},{
+					   header: 'Naturaleza de la Contrataci&oacute;n',
+					   width: 130,
+					   sortable: true,
+					   dataIndex: 'tx_naturaleza',         
+					},{
+					   header: 'Regimen Legal',
+					   width: 100,
+					   sortable: true,         
+					   dataIndex: 'tx_regimen_lab', 
+					},{
+					   header: 'Modalidad',
+					   width: 100,
+					   sortable: true,         
+					   dataIndex: 'tx_modalidad', 
+					},{
+					   header: 'Mecanismo de Verificaci&oacute;n',
+					   width: 100,
+					   sortable: true,         
+					   dataIndex: 'tx_mecanismo_verif', 
+					},{
+					   header: 'Rango de Contrataci&oacute;n',
+					   width: 100,
+					   sortable: true,  
+					   dataIndex: 'tx_rango',        
+					},{
+					   header: 'Plazo de ejecuci&oacute;n',
+					   width: 100,
+					   sortable: true, 
+					   dataIndex: 'nu_plazo_ejec',     
+					},{
+					   header: 'Tipo de actividad',
+					   width: 100,
+					   sortable: true,
+					   dataIndex: 'tx_tipo_act',         
+					},{
+					   header: 'Tipo de presupuesto',
+					   width: 100,
+					   sortable: true,         
+					   dataIndex: 'tx_tipo_presupuesto',
+					},{
+					   xtype:'datecolumn',
+					   header: 'Fecha estima de inicio del Procedimiento',
+					   width: 100,
+					   sortable: true,
+					   dataIndex: 'fe_inicio_estimada_p',
+					   format: 'Y-m-d',         
+					},{
+					   xtype:'datecolumn',
+					   header: 'Fecha estima de inicio de la actividad',
+					   width: 100,
+					   sortable: true,         
+					   dataIndex: 'fe_inicio_estimada_a', 
+					   format: 'Y-m-d',        
+					},{
+					   header: 'Renglon Presupuestario',
+					   width: 100,
+					   sortable: true, 
+					   dataIndex: 'nu_renglon',     
+					}
+				  ],
+			//Carga el formulario con un doble click       
+			listeners: 	{
+						'rowdblclick': function () {
+													WinPlanificacion.show();
+													}
+					    },
+			//Carga los datos en el formulario 	    
+			sm: new Ext.grid.RowSelectionModel({
+			singleSelect: true,
+			listeners: {
+						rowselect: function(sm, row, rec)  {
+															formPanel_planificacion.getForm().loadRecord(rec);
+															} 
+					   }
+											  }),
+					
+			//TOOLBAR PRINCIPAL
+			tbar: [{
+				iconCls: 'proceso-add',
+				text: 'Nuevo Proceso',
+				id:'boton_nuevo_proceso',
+				handler: function () 	{
+										formPanel_planificacion.getForm().reset();
+										WinPlanificacion.setTitle("Planificacion");
+										store_planificacion.setBaseParam('accion','insertar');
+										WinPlanificacion.show();
+										}, 
+				}, {
+				
+				iconCls: 'proceso-delete',
+				text: 'Eliminar Proceso',
+				id:'boton_eliminar_proceso',
+				//disabled: true,
+				handler: function () {
+									// seleciona la fila del grid_planificacion
+									fila = grid_planificacion.getSelectionModel(); 
+									// seleciona la celda del grid_planificacion
+									celda = fila.getSelected();        
+									var gstore = grid_planificacion.getStore();
+									// manda a cargar el store
+									gstore.load({            
+												params:{
+														//tx_indicador:Ext.getCmp('tx_usuario').getValue(),
+														co_proceso: celda.data.co_proceso,
+														accion:'eliminar'
+													   },
+												});
+									gstore.remove(celda);
+									   }
+				}],
+}); 
+    
+//--------------------------------------------FORMULARIO PLANIFICACION-----------------------------------------------------------------
+var panel_planificacion = new Ext.FormPanel({
+	id:'panel_planificacion',
+	name:'panel_planificacion',
+	layout: 'form',
+	labelAlign: 'top',
+	height: 600,
+	items:[{
+				layout: 'column',
+				items: [{
+					columnWidth: .5,
+					layout: 'form',
+					items: [{
+						xtype: 'numberfield',
+						id:'nu_anio',
+						fieldLabel: 'A&ntilde;o',
+						anchor: '20%'
+					        }]
+				}, 
+				{
+					columnWidth: 1,
+					layout: 'form',
+					items: [{
+						xtype: 'textarea',
+						id:'tx_descripcion',
+						fieldLabel: 'Descripci&oacute;n del Proceso',
+						anchor: '90%'
+					}]
+				}, {
+					columnWidth: .5,
+					layout: 'form',
+					items: [{
+						xtype: 'combo',
+						id:'filial',
+						fieldLabel: 'Filial',
+						//name: '',
+						anchor: '80%'
+					}]
+				}, {
+					columnWidth: .5,
+					layout: 'form',
+					items:  [{
+						xtype: 'combo',
+						id:'negocio',
+						fieldLabel: 'Negocio',
+						//name: 'tx_negocio',
+						anchor: '80%'
+					}]
+				}, {
+					columnWidth: .5,
+					layout: 'form',
+					items: [{
+						xtype: 'combo',
+						id:'division',
+						fieldLabel: 'Divisi&oacute;n',
+						//name: '',
+						anchor: '80%'
+					}]
+				}, {
+					columnWidth: .5,
+					layout: 'form',
+					items: [{
+						xtype: 'combo',
+						id:'distrito',
+						fieldLabel: 'Distrito',
+						//name: '',
+						anchor: '80%'
+					}]
+				}, {
+					columnWidth: .5,
+					layout: 'form',
+					items: [GetCombo('co_organizacion','Organizaci&oacute;n')]
+				}, {
+					columnWidth: .5,
+					layout: 'form',
+					items: [GetCombo('co_naturaleza','Naturaleza de la Contrataci&oacute;n')]
+				}, {
+					columnWidth: .5,
+					layout: 'form',
+				    items: [GetCombo('co_regimen_lab','Regimen Laboral')]
+				}, {
+					columnWidth: .5,
+					layout: 'form',
+					items: [GetCombo('co_modalidad','Modalidad de la Contrataci&oacute;n')]
+				}, {
+					columnWidth: .5,
+					layout: 'form',
+					items: [GetCombo('co_mecanismo_verif','Mecanismo de Verificaci&oacute;n')]
+				},{
+					columnWidth: .5,
+					layout: 'form',
+					items: [GetCombo('co_rango','Rango de la Contrataci&oacute;n')]
+				},{
+					columnWidth: .5,
+					layout: 'form',
+					items: [{
+						xtype: 'textfield',
+						id:'nu_plazo_ejec',
+						fieldLabel: 'Plazo de Ejecuci&oacute;n',
+						anchor: '80%'
+					}]
+				},{
+					columnWidth: .5,
+					layout: 'form',
+					items: [GetCombo('co_tipo_presupuesto','Tipo de Presupuesto')]
+					
+				},{
+					columnWidth: .5,
+					layout: 'form',
+					items: [GetCombo('co_tipo_act','Tipo de Actividad')]
+					
+				},{
+					columnWidth: .5,
+					layout: 'form',
+					items: [{
+						xtype: 'datefield',
+						id:'fe_inicio_estimada_p',
+						fieldLabel: 'Inicio de Procedimiento (Estimado)',
+						anchor: '80%',
+						format: 'Y-m-d',
+					}]
+				},{
+					columnWidth: .5,
+					layout: 'form',
+					items: [{
+						xtype: 'datefield',
+						id:'fe_inicio_estimada_a',
+						fieldLabel: 'Inicio de la Actividad (Estimado)',
+						format: 'Y-m-d',
+						anchor: '80%'
+					}]
+				},{
+					columnWidth: .5,
+					layout: 'form',
+					items: [{
+						xtype: 'textfield',
+						id:'nu_renglon',
+						fieldLabel: 'Renglon Presupuestario',
+						anchor: '80%'
+					}]
+				}
+			     
+			    	]
+			}],
+	
+		
+	//Botones
+			buttonAlign: 'center', 	
+			buttons: [{
+				text: 'Guardar',
+				id:'boton_guardar_proceso',
+				listeners: {
+							'click': function () 	{
+													store_planificacion.reload({params:{Resultados: datosPlanificacion(),
+																						accion: 'insertar',
+																						co_proceso:co_proceso
+																					   }
+																			  });
+								
+													WinPlanificacion.hide();
+													}
+							}
+			}, {
+				text: 'Cerrar',
+				id:'boton_cerrar_proceso',
+				listeners: {
+							'click': function () {
+													WinPlanificacion.hide();
+												   }
+						   }
+			   }]	
+});
+ 
+//-------------------------------------------------------------------------------------------------------------------------------------
+ var formPanel_planificacion = new Ext.FormPanel({
+	id:'formPanel_planificacion',
+	name:'formPanel_planificacion',
+	labelAlign: 'top',
+	frame: true,
+	bodyStyle: 'padding:5px 5px 0',
+	width: 550,
+	height: 655,
+	items: {
+		xtype: 'panel',
+		activeTab: 0,
+		defaults: {
+			autoHeight: true,
+			bodyStyle: 'padding:10px'
+		},
+	items :[{items: [panel_planificacion]}],  
+	}
+});
+
+//-------------------------------------------------------------------------------------------------------------------------------------
+var WinPlanificacion = new Ext.Window({
+	id:'WinPlanificacion',
+	name:'WinPlanificacion',
+	title: 'Planificacion',
+	layout:'column',
+	width: 515,
+	modal: true,
+	resizable:false,
+	height: 690,
+	closeAction: 'hide',
+	plain: true,
+	items: [formPanel_planificacion]
+});
+//store_planificacion.load();

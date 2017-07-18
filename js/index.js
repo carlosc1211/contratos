@@ -1,5 +1,5 @@
 var loadMask = new Ext.LoadMask(Ext.getBody(), {msg:"Por favor espere..."});
-var imagen = new Ext.BoxComponent ({autoEl: {tag: 'img', src: 'images/imagen2.PNG'}}); 
+var imagen = new Ext.BoxComponent ({autoEl: {tag: 'img', src: 'images/imagen3.PNG'}}); 
 
 //myMask.show();
 Ext.onReady(function() {

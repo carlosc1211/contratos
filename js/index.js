@@ -43,7 +43,7 @@ Ext.onReady(function() {
                
                 items: [{
                          xtype: 'panel',
-                         height: 600, //469
+                         height: 469, 
                           width: 644,
                           title: 'Gesti&oacute;n del Proceso de Planificaci&oacuten',
                     
